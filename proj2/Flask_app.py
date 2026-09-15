@@ -503,11 +503,11 @@ def restaurant_required(f):
         # Call the route function
         response = f(*args, **kwargs)
 
-        # If response is a string, convert to Response object
-        if isinstance(response, str):
-            from flask import make_response
+        # Normalize strings, tuples, and other valid Flask return values to a
+        # response object before adding headers.
+        from flask import make_response
 
-            response = make_response(response)
+        response = make_response(response)
 
         # Add cache-control headers to prevent browser caching
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, private"

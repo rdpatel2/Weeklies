@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weeklies — Project 1b poster draft</title>
+<style>
+  @page { size: letter; margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #dce4e1; color: #17372e; font-family: Arial, Helvetica, sans-serif; }
+  .page { width: 8.5in; min-height: 11in; margin: 24px auto; padding: .25in; background: #f7f7ef; }
+  header { background: #173f34; color: #fff; padding: 15px 23px 13px; border-radius: 12px; }
+  .eyebrow { font-size: 9px; letter-spacing: 1.6px; font-weight: 700; text-transform: uppercase; }
+  h1 { font-size: 45px; letter-spacing: -2px; margin: 5px 0 0; line-height: 1; }
+  .tagline { color: #d8ed9c; font-size: 23px; font-weight: bold; margin: 7px 0 9px; }
+  .team { font-size: 10px; border-top: 1px solid #6c8d7e; padding-top: 9px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 7px; }
+  h3 { font-size: 11px; margin: 0 0 4px; }
+  p { font-size: 10px; line-height: 1.4; margin: 0; }
+  .mission { padding: 13px 1px 10px; }
+  .stakeholders { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; margin-bottom: 11px; }
+  .stakeholders div { border-left: 3px solid #91ac55; padding-left: 7px; }
+  .stakeholders p { font-size: 9px; }
+  .sell { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+  .sell article { padding: 11px; border-radius: 9px; background: #e5ecd5; }
+  .sell .num { font-weight: bold; font-size: 10px; color: #537139; margin-bottom: 5px; }
+  .sell p { font-size: 9.5px; }
+  .section-label { margin: 12px 0 7px; display: flex; justify-content: space-between; align-items: baseline; }
+  .section-label h2 { margin: 0; }
+  .section-label span { font-size: 8px; }
+  .roadmap { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+  .phase { border: 1px solid #cbd4c7; border-radius: 9px; padding: 10px; }
+  .phase.now { border-color: #537139; border-top: 4px solid #537139; padding-top: 7px; }
+  .phase h2 { font-size: 13px; margin-bottom: 2px; }
+  .phase .sub { font-size: 8px; color: #62756b; margin-bottom: 9px; }
+  .milestone { margin-top: 8px; }
+  .milestone p { font-size: 9px; line-height: 1.35; }
+  .evidence { display: flex; align-items: center; gap: 12px; background: #173f34; color: white; padding: 10px 13px; border-radius: 8px; margin-top: 11px; }
+  .metric { white-space: nowrap; text-align: center; }
+  .metric b { font-size: 22px; color: #d8ed9c; }
+  .metric span { display: block; font-size: 8px; }
+  .evidence p { font-size: 8px; border-left: 1px solid #6c8d7e; padding-left: 12px; }
+  .screens { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; margin-top: 10px; }
+  figure { margin: 0; }
+  .placeholder { height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px dashed #839582; border-radius: 7px; background: #edf0e7; padding: 7px; font-size: 9px; line-height: 1.4; }
+  .placeholder small { font-size: 8px; color: #62756b; }
+  figcaption { font-size: 8px; margin-top: 4px; }
+  .stack { display: flex; gap: 10px; padding: 9px 0; border-top: 1px solid #ccd4c7; border-bottom: 1px solid #ccd4c7; margin-top: 10px; }
+  .tech { flex: 1; font-size: 8px; line-height: 1.3; }
+  .icon { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; border-radius: 6px; background: #173f34; color: #d8ed9c; font-weight: bold; font-size: 10px; margin-right: 4px; vertical-align: middle; }
+  .tech strong { font-size: 8px; }
+  .tech p { font-size: 8px; margin-top: 4px; }
+  .links { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 10px; text-align: center; }
+  .qr { width: 55px; height: 55px; border: 1px dashed #839582; margin: 4px auto; display: flex; align-items: center; justify-content: center; font-size: 8px; line-height: 1.3; color: #62756b; }
+  .links h3 { font-size: 9px; margin-bottom: 2px; }
+  .links a, .links .url { font-size: 8px; color: #173f34; overflow-wrap: anywhere; }
+  .links small { display: block; font-size: 7px; margin-top: 3px; }
+  footer { font-size: 7px; color: #647568; margin-top: 8px; text-align: center; }
+  @media print { body { background: white; } .page { margin: 0; } * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+
+  /* Restrained academic poster theme. */
+  body { background: #e8e8e8; color: #222; }
+  .page { background: #fff; }
+  header { background: #fff; color: #222; border-radius: 0; border-top: 3px solid #a52a2a; border-bottom: 1px solid #ccc; padding-left: 0; padding-right: 0; }
+  .eyebrow { color: #666; letter-spacing: .5px; font-weight: normal; }
+  h1 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -1px; }
+  .tagline { color: #222; font-weight: normal; }
+  .team { border: 0; color: #555; }
+  h2 { letter-spacing: .5px; }
+  .stakeholders div { border-left: 1px solid #ccc; }
+  .sell article { border-radius: 0; background: #fff; border-top: 1px solid #a52a2a; }
+  .sell .num { color: #a52a2a; }
+  .phase, .phase.now { border: 0; border-top: 1px solid #aaa; border-radius: 0; padding-top: 10px; }
+  .phase.now { border-top-color: #a52a2a; }
+  .phase h2 { background: #f3f3f3; padding: 4px; }
+  .phase .sub { color: #666; }
+  .evidence { border-radius: 0; background: #f3f3f3; color: #222; }
+  .metric b { color: #222; }
+  .evidence p { border-color: #ccc; }
+  .placeholder { background: #fafafa; border-color: #bbb; border-radius: 0; }
+  .placeholder small, footer, .qr { color: #777; }
+  .stack { border-color: #ccc; }
+  .icon { border-radius: 0; background: #f3f3f3; color: #222; }
+  .qr { border-color: #bbb; }
+  .links a, .links .url { color: #222; }
+</style>
+</head>
+<body><main class="page">
+<header>
+  <div class="eyebrow">CSC 510 · Project 1b · Proposed next version</div>
+<h1>Weeklies</h1>
+  <div class="tagline">Your meals. Your schedule. Your budget.</div>
+  <div class="team"><b>Group 11</b> &nbsp; | &nbsp; Srikar Desemsetti, Rohan Patel, Alex Tanton, Kushal Upretti</div>
+</header>
+<section class="mission">
+  <h2>Project overview</h2>
+  <p>Choosing meals every day takes time, and more often than not, a weekly plan can be costly and get old quickly. We propose extending Weeklies into a <b>budget-aware meal planner</b> that lets customers set a weekly limit, understand selections, and replace meals without rebuilding their calendar. Restaurant owners and kitchen staff gain clearer order updates and a view of upcoming demand: <b>less daily planning, more spending control, and better coordination.</b></p>
+</section>
+<section class="stakeholders" aria-label="Stakeholders">
+  <div><h3>Customers</h3><p>Busy people who need to balance time, cost, and preferences.</p></div>
+  <div><h3>Restaurant owners</h3><p>See upcoming demand and manage fulfillment.</p></div>
+  <div><h3>Kitchen staff</h3><p>Follow an explicit preparation queue.</p></div>
+  <div><h3>Maintainers</h3><p>Build on reproducible use-case tests.</p></div>
+</section>
+<section class="sell" aria-label="Proposed improvements">
+  <article><div class="num">BUDGET</div><h3>Weekly spending limits</h3><p>Compare meal prices across vendors and allocate a weekly budget for meals.</p></article>
+  <article><div class="num">MEAL SELECTION</div><h3>Individual meal replacement</h3><p>Swap a single calendar entry for the week without disrupting future plans.</p></article>
+  <article><div class="num">ORDER STATUS</div><h3>Order progress timeline</h3><p>See recorded order transitions on a timeline that refreshes as the restaurant progresses through fulfillment.</p></article>
+</section>
+<div class="section-label"><h2>Development plan</h2><span>Proposed scope · each milestone pairs a goal with a method</span></div>
+<section class="roadmap" aria-label="Milestones">
+  <article class="phase"><h2>Before</h2><div class="sub">PROJECT 1a · BASELINE EVIDENCE</div>
+    <div class="milestone"><h3>Map real user goals</h3><p>28 documented use cases. Trace routes and record success and exception paths for accounts, planning, orders, reviews, and analytics.</p></div>
+    <div class="milestone"><h3>Establish regression evidence</h3><p>172 test functions in 28 modules. Use Flask clients and temporary SQLite fixtures; attach a verified run summary.</p></div>
+    <div class="milestone"><h3>Understand planning limits</h3><p>Trace UC06–07 and tests: generation checks hours, stock, and declared allergies while retaining existing slots.</p></div>
+  </article>
+  <article class="phase now"><h2>Now</h2><div class="sub">PROJECT 2 · THIS MONTH'S PROPOSAL</div>
+    <div class="milestone"><h3>Budget-aware generation</h3><p>Add a weekly cap and item total; filter and rank eligible candidates. Test exact-limit and impossible-budget cases.</p></div>
+    <div class="milestone"><h3>Single-meal swaps</h3><p>Replace one date/meal slot after server-side availability and allergen checks. Test that other slots stay intact.</p></div>
+    <div class="milestone"><h3>Visible order progress</h3><p>Persist transition timestamps; refresh a customer timeline. Test ownership, legal transitions, and terminal states.</p></div>
+  </article>
+  <article class="phase"><h2>Future</h2><div class="sub">PROJECT 3 · NEXT MONTH'S OPTIONS</div>
+    <div class="milestone"><h3>Reusable weekly templates</h3><p>Save and copy a week to new dates; recheck prices, hours, and stock. Require review before creating orders.</p></div>
+    <div class="milestone"><h3>Explainable suggestions</h3><p>Build factual reasons from preference, price, and availability checks. Handle missing data and model fallback.</p></div>
+    <div class="milestone"><h3>Restaurant demand preview</h3><p>Aggregate plans by date and meal. Separate tentative selections from orders; omit customer identities.</p></div>
+  </article>
+</section>
+<section class="evidence" aria-label="Baseline evidence">
+  <div class="metric"><b>28</b><span>documented use cases</span></div>
+  <div class="metric"><b>28</b><span>Project 1a test modules</span></div>
+  <div class="metric"><b>172</b><span>test functions</span></div>
+  <p>Counts checked in <b>use-cases.md</b> and <b>proj2/sef26tests/</b>.<br>Source inventory only. Execution, pass/fail totals, and coverage still need verification.</p>
+</section>
+<section class="screens" aria-label="System screenshots and test evidence to insert">
+  <figure><div class="placeholder"><b>INSERT REAL SCREENSHOT</b>Customer meal calendar<small>Show existing generated entries</small></div><figcaption>Existing system · your week at a glance.</figcaption></figure>
+  <figure><div class="placeholder"><b>INSERT REAL SCREENSHOT</b>Restaurant order dashboard<small>Show fulfillment controls</small></div><figcaption>Existing system · manage the order lifecycle.</figcaption></figure>
+  <figure><div class="placeholder"><b>INSERT TEST-RUN CAPTURE</b>Project 1a suite summary<small>Include date and commit</small></div><figcaption>Evidence · report actual results before submission.</figcaption></figure>
+</section>
+<section class="stack" aria-label="Proposed technology stack; symbol badges are draft icon placeholders">
+  <div class="tech"><span class="icon">Py</span><strong>Python / Flask</strong><p>Extend existing planning and order routes.</p></div>
+  <div class="tech"><span class="icon">DB</span><strong>SQLite</strong><p>Store budgets, meals, and transition history.</p></div>
+  <div class="tech"><span class="icon">&lt;/&gt;</span><strong>HTML / CSS / JS</strong><p>Calendar actions and timeline refresh.</p></div>
+  <div class="tech"><span class="icon">AI</span><strong>LLM + fallback</strong><p>Rank candidates; enforce constraints in code.</p></div>
+  <div class="tech"><span class="icon">CI</span><strong>pytest / Actions</strong><p>Check regressions as features evolve.</p></div>
+</section>
+<section class="links" aria-label="Project links">
+  <div><h3>REPOSITORY</h3><div class="qr">INSERT<br>REPO QR</div><a href="https://github.com/rdpatel2/Weeklies">https://github.com/rdpatel2/Weeklies</a></div>
+  <div><h3>DISCUSSION FORUM</h3><div class="qr">INSERT<br>FORUM QR</div><span class="url">[FORUM URL]</span><small>Grant CSC 510 tutors and lecturers access.</small></div>
+  <div><h3>FEATURE WALKTHROUGH</h3><div class="qr">INSERT<br>VIDEO QR</div><span class="url">[VIDEO URL]</span><small>Feature walkthrough · 2–5 minutes</small></div>
+</section>
+<footer>DRAFT · Proposed features are not implemented claims. Replace bracketed fields, captures, icon badges, and QR placeholders before submission.</footer>
+</main></body>
+</html>
