@@ -164,12 +164,14 @@ This catalog was derived from the behavior implemented in the Weeklies repositor
 |---|---|
 | **Name** | Track order history |
 | **Primary actor** | Signed-in customer |
-| **Stakeholders & interests** | Customer—wants current status, item details, charges, and relevant follow-up actions. Restaurant—wants its status updates reflected accurately. |
+| **Stakeholders & interests** | Customer—wants current status, how far the order has progressed and what remains, item details, charges, and relevant follow-up actions. Restaurant—wants its status updates reflected accurately. |
 | **Preconditions** | The customer is signed in. |
 | **Trigger** | The customer opens their profile. |
-| **Main success scenario** | 1. Weeklies retrieves orders owned by the customer.<br>2. Weeklies interprets each order's item, charge, scheduling, and fulfillment details.<br>3. Weeklies orders the history with newest orders first.<br>4. Weeklies shows each order's restaurant, contents, total, and current status.<br>5. Weeklies presents the actions appropriate to each order. |
-| **Extensions** | 1a. The customer has no orders → Weeklies shows an empty order history.<br>2a. An order contains malformed details → Weeklies shows safe fallback values for that order.<br>4a. An order references unavailable restaurant information → Weeklies displays the remaining order information.<br>5a. A delivered order has no review → Weeklies offers review submission.<br>5b. A delivered order already has a review → Weeklies offers review viewing. |
+| **Main success scenario** | 1. Weeklies retrieves orders owned by the customer.<br>2. Weeklies interprets each order's item, charge, scheduling, and fulfillment details.<br>3. Weeklies orders the history with newest orders first.<br>4. Weeklies shows each order's restaurant, contents, total, and current status, with its progress through the lifecycle (Ordered → Accepted → Preparing → Ready → Delivered): stages reached, the current stage, and stages still to come.<br>5. Weeklies presents the actions appropriate to each order. |
+| **Extensions** | 1a. The customer has no orders → Weeklies shows an empty order history.<br>2a. An order contains malformed details → Weeklies shows safe fallback values for that order.<br>4a. An order references unavailable restaurant information → Weeklies displays the remaining order information.<br>4b. An order is cancelled → Weeklies marks it cancelled and shows the lifecycle as not completed, without claiming which stages were reached.<br>4c. An order's status is missing or outside the known lifecycle → Weeklies shows the stored value (or "Unknown") without a progress position and still displays the rest of the history.<br>5a. A delivered order has no review → Weeklies offers review submission.<br>5b. A delivered order already has a review → Weeklies offers review viewing. |
 | **Postconditions** | The customer has seen the latest stored state of all owned orders; no order is changed. |
+
+> **Project 2 extension (visible order progress).** Step 4's progress view and extensions 4b–4c were added in Project 2; previously only the current status word was shown, and `Accepted`/`Ready` had no visual treatment. Orders store only their current status, so progress is derived from it; recording *when* each stage was reached would need a status-history table and is future scope. Implemented in `proj2/order_progress.py` and `proj2/templates/profile.html`; tested in `proj2/sef26tests/test_uc13_order_progress.py` and `test_uc13_track_orders.py`.
 
 ## UC14 — Download order receipt
 
