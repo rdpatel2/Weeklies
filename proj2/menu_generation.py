@@ -219,22 +219,25 @@ class MenuGenerator:
     MenuGenerator class that uses an LLM to generate menu items based on user preferences and restrictions
     """
 
-    def __init__(self, tokens: int = 500):
+    def __init__(self, tokens: int = 500, database_path: str = None):
         """
         Initializes the MenuGenerator with menu items and restaurants from the database and initializes
         the local LLM.
 
         Args:
             tokens (int): The number of tokens to use for the LLM generation
+            database_path (str | None): Use the caller's catalog when supplied.
         """
-        conn = create_connection(db_file)
-        catalog = pd.read_sql_query("SELECT itm_id, price FROM MenuItem", conn)
-        self.item_prices = dict(zip(catalog.itm_id, catalog.price))
-        self.menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
-        self.restaurants = pd.read_sql_query(
-            'SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn
-        )
-        close_connection(conn)
+        conn = create_connection(database_path or db_file)
+        try:
+            catalog = pd.read_sql_query("SELECT itm_id, price FROM MenuItem", conn)
+            self.item_prices = dict(zip(catalog.itm_id, catalog.price))
+            self.menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
+            self.restaurants = pd.read_sql_query(
+                'SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn
+            )
+        finally:
+            close_connection(conn)
 
         self.generator = llm_toolkit.LLM(tokens=tokens)
 
