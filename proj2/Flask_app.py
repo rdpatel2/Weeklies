@@ -527,14 +527,10 @@ def restaurant_required(f):
         if not session.get("restaurant_mode") or not session.get("rtr_id"):
             return redirect(url_for("restaurant_login"))
 
-        # Call the route function
-        response = f(*args, **kwargs)
+        # Normalize Flask return values, including (body, status, headers) tuples.
+        from flask import make_response
 
-        # If response is a string, convert to Response object
-        if isinstance(response, str):
-            from flask import make_response
-
-            response = make_response(response)
+        response = make_response(f(*args, **kwargs))
 
         # Add cache-control headers to prevent browser caching
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
