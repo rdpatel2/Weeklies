@@ -253,7 +253,9 @@ class MenuGenerator:
             combined = combined[combined["price_cents"] <= max_price_cents]
         return combined.sort_values(["price_cents", "itm_id"], kind="stable")
 
-    def __get_context(self, allergens: str, weekday: str, order_time: int, num_choices: int) -> str:
+    def __get_context(
+        self, allergens: str, weekday: str, order_time: int, num_choices: int, candidates=None
+    ) -> str:
         """
         Generates the context block for the LLM based on the provided allergens, date, and order time
 
@@ -269,16 +271,13 @@ class MenuGenerator:
         """
         start = time.time()
 
-        combined = pd.merge(self.menu_items, self.restaurants, on="rtr_id", how="left")
-
-        ## Removes restaurants that are closed during the order time
-        combined = filter_closed_restaurants(combined, weekday, order_time)
-
-        ## Removes items that contain allergens
-        combined = filter_allergens(combined, allergens)
-
-        ## Randomly selects ITEM_CHOICES number of items to present to the LLM
-        choices = limit_scope(combined, num_choices)
+        if candidates is None:
+            combined = self._eligible_candidates(allergens, weekday, order_time)
+            choices = limit_scope(combined, num_choices)
+        else:
+            # Budgeted generation always exposes the cheapest ranked options first.
+            combined = candidates.head(num_choices)
+            choices = range(len(combined))
 
         context_data = "item_id,name,description,price,calories\n"
 
@@ -294,7 +293,7 @@ class MenuGenerator:
         return context_data, item_ids
 
     def __pick_menu_item(
-        self, preferences: str, allergens: str, weekday: str, meal_number: int
+        self, preferences: str, allergens: str, weekday: str, meal_number: int, candidates=None
     ) -> int:
         """
         Picks a menu item based on user preferences, allergens, date, and meal number
@@ -314,7 +313,11 @@ class MenuGenerator:
 
         ## Tries to get output from LLM a number of times, increasing the number of options every time
         for x in range(MAX_LLM_TRIES):
-            context, item_ids = self.__get_context(allergens, weekday, order_time, num_choices)
+            context, item_ids = self.__get_context(
+                allergens, weekday, order_time, num_choices, candidates
+            )
+            if not item_ids:
+                raise RuntimeError("No eligible menu items are available for this meal.")
 
             ## Gets the prompt
             system = SYSTEM_TEMPLATE
