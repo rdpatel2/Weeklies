@@ -132,3 +132,26 @@ def test_profile_offers_cap_and_shows_budget_error_for_regular_form(
     assert 'name="weekly_cap"' in html
     assert "needs at least $10.00" in html
     assert 'id="menuError"' in html
+
+
+def test_calendar_displays_weekly_item_total(client, login_session, budget_catalog):
+    assert client.post("/menu/generate", json=payload()).status_code == 200
+    response = client.get("/2026/10")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "Weekly item totals" in html
+    assert "<td>2026-10-05</td><td>$10.00</td>" in html
+    assert "Taxes, delivery fees, and tips are extra" in html
+
+
+def test_calendar_does_not_claim_zero_total_for_missing_items(
+    client, login_session, budget_catalog, temp_db_path
+):
+    with sqlite3.connect(temp_db_path) as conn:
+        conn.execute(
+            'UPDATE "User" SET generated_menu=? WHERE email="test@x.com"',
+            ("[2026-10-05,999999,3]",),
+        )
+    response = client.get("/2026/10")
+    assert response.status_code == 200
+    assert "Item totals are unavailable" in response.get_data(as_text=True)

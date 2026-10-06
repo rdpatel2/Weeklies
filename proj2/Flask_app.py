@@ -387,6 +387,20 @@ def index(year, month):
     all_item_ids = sorted({e["itm_id"] for entries in gen_map.values() for e in entries})
     items_by_id = fetch_menu_items_by_ids(all_item_ids)
 
+    # Show item totals for weeks represented in this calendar month.
+    item_totals = {}
+    item_total_error = None
+    try:
+        visible_weeks = sorted({
+            week_start(day) for day in gen_map
+            if day.startswith(f"{year:04d}-{month:02d}-")
+        })
+        item_totals = weekly_item_totals(
+            gen_str, {item: data["price"] for item, data in items_by_id.items()}, visible_weeks
+        )
+    except ValueError:
+        item_total_error = "Item totals are unavailable because a planned meal or its price is missing."
+
     # Build cells for the month
     cells = build_calendar_cells(gen_map, year, month, items_by_id)
 
@@ -420,6 +434,8 @@ def index(year, month):
         today_month=today.month,
         today_day=today.day,
         today_menu=today_menu,
+        weekly_item_totals=item_totals,
+        item_total_error=item_total_error,
     )
 
 
