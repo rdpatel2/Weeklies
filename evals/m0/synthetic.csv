@@ -1,0 +1,11 @@
+participant_id,data_kind,baseline_first,baseline_seconds,baseline_valid_meals,weeklies_seconds,weeklies_valid_meals,budget_cents,baseline_cost_cents,weeklies_cost_cents,evidence_ref
+sim-01,synthetic,true,630,7,465,7,10000,9500,9200,scripts/simulate_m0.py:profile-0
+sim-02,synthetic,false,665,7,545,7,10500,10000,9700,scripts/simulate_m0.py:profile-1
+sim-03,synthetic,true,700,7,625,7,11000,10500,11500,scripts/simulate_m0.py:profile-2
+sim-04,synthetic,false,735,7,705,7,10000,9500,9200,scripts/simulate_m0.py:profile-3
+sim-05,synthetic,true,770,7,545,7,10500,10000,9700,scripts/simulate_m0.py:profile-4
+sim-06,synthetic,false,805,7,625,7,11000,12000,10200,scripts/simulate_m0.py:profile-5
+sim-07,synthetic,true,840,7,705,7,10000,11000,10500,scripts/simulate_m0.py:profile-6
+sim-08,synthetic,false,875,7,785,5,10500,11500,9700,scripts/simulate_m0.py:profile-7
+sim-09,synthetic,true,910,7,625,7,11000,12000,10200,scripts/simulate_m0.py:profile-8
+sim-10,synthetic,false,945,7,705,7,10000,11000,10500,scripts/simulate_m0.py:profile-9
