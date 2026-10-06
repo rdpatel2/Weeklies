@@ -11,6 +11,7 @@ from datetime import timedelta, date, datetime
 from functools import wraps
 from proj2.pdf_receipt import generate_order_receipt_pdf
 from proj2.menu_generation import MenuGenerator
+from proj2.meal_budget import BudgetExceededError, parse_weekly_cap, week_start, weekly_item_totals
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort
 
@@ -2373,9 +2374,22 @@ def generate_menu():
         allergies = (request.form.get('allergens') or allergies_db).strip()
         want_json = False
 
+    want_json = request.is_json or request.accept_mimetypes.best == 'application/json'
+
+    def generation_error(message, status):
+        if want_json:
+            return jsonify({"ok": False, "error": message}), status
+        return redirect(url_for('profile', gen_error=message))
+
+    try:
+        cap_value = payload.get('weekly_cap') if request.is_json else request.form.get('weekly_cap')
+        weekly_cap_cents = parse_weekly_cap(cap_value)
+    except ValueError as exc:
+        return generation_error(str(exc), 400)
+
     # Validate start_date
     try:
-        _ = datetime.fromisoformat(start_date)
+        _ = date.fromisoformat(start_date)
     except Exception:
         start_date = date.today().isoformat()
 
@@ -2387,7 +2401,7 @@ def generate_menu():
 
     # Generate
     try:
-        gen = MenuGenerator(tokens=100)
+        gen = MenuGenerator(tokens=100, database_path=db_file)
         updated_menu = gen.update_menu(
             menu=existing_menu,
             preferences=preferences,
@@ -2395,11 +2409,19 @@ def generate_menu():
             date=start_date,
             meal_numbers=meal_numbers,
             number_of_days=number_of_days,
+            weekly_cap_cents=weekly_cap_cents,
         )
-    except Exception as e:
-        if want_json:
-            return jsonify({"ok": False, "error": str(e)}), 500
-        return redirect(url_for('profile', gen_error=1))
+        start = date.fromisoformat(start_date)
+        weeks = list(dict.fromkeys(
+            week_start((start + timedelta(days=i)).isoformat()) for i in range(number_of_days)
+        ))
+        totals = weekly_item_totals(updated_menu, gen.item_prices, weeks)
+    except BudgetExceededError as exc:
+        return generation_error(str(exc), 422)
+    except ValueError as exc:
+        return generation_error(str(exc), 400)
+    except Exception as exc:
+        return generation_error(str(exc), 500)
 
     # Persist
     conn = create_connection(db_file)
@@ -2416,7 +2438,10 @@ def generate_menu():
             "generated_menu": updated_menu,
             "start_date": start_date,
             "meal_numbers": meal_numbers,
-            "number_of_days": number_of_days
+            "number_of_days": number_of_days,
+            "weekly_cap_cents": weekly_cap_cents,
+            "item_total_cents": sum(totals.values()),
+            "weekly_item_totals_cents": totals,
         })
     return redirect(url_for('index'))
 
