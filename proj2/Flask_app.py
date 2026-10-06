@@ -11,7 +11,9 @@ from datetime import timedelta, date, datetime
 from functools import wraps
 from proj2.pdf_receipt import generate_order_receipt_pdf
 from proj2.menu_generation import MenuGenerator
-from proj2.meal_budget import BudgetExceededError, parse_weekly_cap, week_start, weekly_item_totals
+from proj2.meal_budget import (
+    BudgetExceededError, parse_weekly_cap, plan_entries, week_start, weekly_item_totals
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort
 
@@ -395,8 +397,16 @@ def index(year, month):
             week_start(day) for day in gen_map
             if day.startswith(f"{year:04d}-{month:02d}-")
         })
+        visible_week_item_ids = {
+            item_id
+            for day, item_id, _ in plan_entries(gen_str)
+            if week_start(day) in visible_weeks
+        }
+        totals_by_item = fetch_menu_items_by_ids(sorted(visible_week_item_ids))
         item_totals = weekly_item_totals(
-            gen_str, {item: data["price"] for item, data in items_by_id.items()}, visible_weeks
+            gen_str,
+            {item: data["price"] for item, data in totals_by_item.items()},
+            visible_weeks,
         )
     except ValueError:
         item_total_error = "Item totals are unavailable because a planned meal or its price is missing."

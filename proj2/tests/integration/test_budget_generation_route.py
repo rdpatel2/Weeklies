@@ -145,6 +145,29 @@ def test_calendar_displays_weekly_item_total(client, login_session, budget_catal
     assert "Taxes, delivery fees, and tips are extra" in html
 
 
+def test_calendar_total_includes_saved_meals_just_outside_the_month(
+    client, login_session, budget_catalog, temp_db_path
+):
+    item, _ = budget_catalog
+    with sqlite3.connect(temp_db_path) as conn:
+        other = conn.execute(
+            "SELECT itm_id FROM MenuItem WHERE itm_id != ? LIMIT 1", (item,)
+        ).fetchone()[0]
+        conn.execute("UPDATE MenuItem SET price=9000 WHERE itm_id=?", (other,))
+        conn.execute(
+            'UPDATE "User" SET generated_menu=? WHERE email="test@x.com"',
+            (f"[2026-10-31,{other},3]",),
+        )
+    response = client.post(
+        "/menu/generate",
+        json=payload(start_date="2026-11-01", number_of_days=1, weekly_cap="100.00"),
+    )
+    assert response.status_code == 200
+    assert response.get_json()["weekly_item_totals_cents"] == {"2026-10-26": 9500}
+    page = client.get("/2026/11")
+    assert "<td>2026-10-26</td><td>$95.00</td>" in page.get_data(as_text=True)
+
+
 def test_calendar_does_not_claim_zero_total_for_missing_items(
     client, login_session, budget_catalog, temp_db_path
 ):
