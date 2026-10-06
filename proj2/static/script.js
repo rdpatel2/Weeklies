@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('form[action*="menu/generate"]');
     const generateBtn = document.getElementById('generateMenuBtn');
     const loadingDiv = document.getElementById('menuLoading');
+    const errorDiv = document.getElementById('menuError');
 
     if (!form || !generateBtn || !loadingDiv) {
       console.warn('Menu loading elements not found');
@@ -38,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Collect form data
       const formData = new FormData(form);
+      if (errorDiv) {
+        errorDiv.hidden = true;
+        errorDiv.textContent = '';
+      }
       
       // Show spinner - make absolutely visible
       loadingDiv.style.display = 'block';
@@ -54,12 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Sending menu generation request to:', form.action);
         const response = await fetch(form.action, {
           method: 'POST',
+          headers: { 'Accept': 'application/json' },
           body: formData
         });
+        const result = await response.json();
         
         console.log('Response received:', response.status);
         
-        if (response.ok) {
+        if (response.ok && result.ok) {
           console.log('Generation successful, redirecting...');
           // Small delay to ensure spinner is visible before redirect
           setTimeout(() => {
@@ -68,13 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           console.error('Generation failed with status:', response.status);
           // Show error and hide spinner
-          alert('Menu generation failed. Please try again.');
+          if (errorDiv) {
+            errorDiv.textContent = result.error || 'Menu generation failed. Please try again.';
+            errorDiv.hidden = false;
+          }
           loadingDiv.style.display = 'none';
           generateBtn.disabled = false;
         }
       } catch (error) {
         console.error('Error generating menu:', error);
-        alert('Menu generation failed. Please try again.');
+        if (errorDiv) {
+          errorDiv.textContent = 'Menu generation failed. Please try again.';
+          errorDiv.hidden = false;
+        }
         loadingDiv.style.display = 'none';
         generateBtn.disabled = false;
       }
