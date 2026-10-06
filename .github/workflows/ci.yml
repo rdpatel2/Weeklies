@@ -58,6 +58,9 @@ jobs:
           path: |
             artifacts/m0-result.json
             evals/m0/synthetic.csv
+            evals/m0/catalog.csv
+            evals/m0/simulation.json
+            evals/m0/sensitivity.json
           if-no-files-found: error
 
   test:
