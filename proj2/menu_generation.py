@@ -8,6 +8,7 @@ import re
 from typing import Tuple, List
 
 import proj2.llm_toolkit as llm_toolkit
+from proj2.meal_budget import item_price_cents
 from proj2.sqlQueries import *
 
 db_file = os.path.join(os.path.dirname(__file__), "CSC510_DB.db")
@@ -155,12 +156,19 @@ def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The filtered DataFrame with menu items containing the specified allergens removed
     """
-    for index, rows in menu_items.iterrows():
-        if rows["allergens"] is not None:
-            item_allergens = rows["allergens"].split(",")
-            if any(allergen in item_allergens for allergen in allergens.split(",")):
-                menu_items.drop(index, inplace=True)
-    return menu_items
+    prohibited = {
+        value.strip().casefold() for value in (allergens or "").split(",") if value.strip()
+    }
+
+    def allowed(value):
+        declared = (
+            set()
+            if pd.isna(value)
+            else {tag.strip().casefold() for tag in str(value).split(",") if tag.strip()}
+        )
+        return not prohibited.intersection(declared)
+
+    return menu_items.loc[menu_items["allergens"].map(allowed).astype(bool)].copy()
 
 
 def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int) -> pd.DataFrame:
@@ -176,7 +184,15 @@ def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int)
         pd.DataFrame: The filtered DataFrame with closed restaurants removed
     """
     for index, rows in restaurant.iterrows():
-        opening_times = json.loads(rows["hours"])[weekday]
+        try:
+            opening_times = json.loads(rows["hours"])[weekday]
+            if not isinstance(opening_times, list) or not all(
+                isinstance(value, (int, float)) for value in opening_times
+            ):
+                raise ValueError("Invalid hours")
+        except (TypeError, ValueError, KeyError):
+            restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+            continue
         if len(opening_times) % 2 == 1:
             print("Odd opening times - cannot process")
             restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
@@ -213,6 +229,29 @@ class MenuGenerator:
         close_connection(conn)
 
         self.generator = llm_toolkit.LLM(tokens=tokens)
+
+    def _eligible_candidates(self, allergens, weekday, order_time, max_price_cents=None):
+        """Filter stock, open restaurants and allergens; rank valid prices cheapest first."""
+        combined = pd.merge(
+            self.menu_items[self.menu_items["instock"] == 1],
+            self.restaurants,
+            on="rtr_id",
+            how="inner",
+        )
+        combined = filter_closed_restaurants(combined, weekday, order_time)
+        combined = filter_allergens(combined, allergens)
+
+        def valid_price(value):
+            try:
+                return item_price_cents(value)
+            except ValueError:
+                return None
+
+        combined = combined.assign(price_cents=combined["price"].map(valid_price))
+        combined = combined[combined["price_cents"].notna()]
+        if max_price_cents is not None:
+            combined = combined[combined["price_cents"] <= max_price_cents]
+        return combined.sort_values(["price_cents", "itm_id"], kind="stable")
 
     def __get_context(self, allergens: str, weekday: str, order_time: int, num_choices: int) -> str:
         """
