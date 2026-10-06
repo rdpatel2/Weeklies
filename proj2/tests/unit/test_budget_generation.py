@@ -130,3 +130,55 @@ def test_existing_legacy_dinner_is_preserved_and_counted_once(generator):
     assert generate(generator, menu=existing, number_of_days=1, weekly_cap_cents=500) == existing
     assert generator.item_total_cents == 500
     generator.generator.generate.assert_not_called()
+
+
+def test_reservation_uses_each_days_eligible_prices(generator):
+    # Cheap meals are available only Monday; Tuesday requires the $10 option.
+    generator.menu_items.loc[generator.menu_items.itm_id.isin([2, 3]), "rtr_id"] = 2
+    hours = {day: ([0, 2359] if day == "Mon" else []) for day in DAYS_OF_WEEK}
+    generator.restaurants.loc[1] = {"rtr_id": 2, "hours": json.dumps(hours)}
+    generator.generator.generate.side_effect = [
+        "<|start_of_role|>assistant<|end_of_role|>2<|end_of_text|>",
+        "<|start_of_role|>assistant<|end_of_role|>1<|end_of_text|>",
+    ]
+    assert generate(generator, weekly_cap_cents=1500) == "[2026-10-05,2,3],[2026-10-06,1,3]"
+    assert generator.item_total_cents == 1500
+    assert "1,Meal 1" not in generator.generator.generate.call_args_list[0].args[1]
+
+
+def test_preflight_rejects_impossible_later_week_before_any_generation(generator):
+    with pytest.raises(BudgetExceededError, match="2026-10-12"):
+        generate(generator, menu="[2026-10-13,1,3]", date="2026-10-11", weekly_cap_cents=500)
+    generator.generator.generate.assert_not_called()
+
+
+def test_saved_out_of_stock_meals_still_consume_budget(generator):
+    generator.menu_items.loc[0, "instock"] = 0
+    with pytest.raises(BudgetExceededError):
+        generate(generator, menu="[2026-10-11,1,3]", weekly_cap_cents=1999)
+
+
+def test_zero_cap_allows_only_free_meals(generator):
+    with pytest.raises(BudgetExceededError):
+        generate(generator, weekly_cap_cents=0)
+    generator.menu_items.loc[1, "price"] = 0
+    generator.item_prices[2] = 0
+    generator.generator.generate.return_value = (
+        "<|start_of_role|>assistant<|end_of_role|>2<|end_of_text|>"
+    )
+    generate(generator, weekly_cap_cents=0)
+    assert generator.item_total_cents == 0
+
+
+def test_repeated_unaffordable_model_choices_never_bypass_cap(generator):
+    generator.generator.generate.return_value = (
+        "<|start_of_role|>assistant<|end_of_role|>1<|end_of_text|>"
+    )
+    with pytest.raises(RuntimeError, match="LLM has failed"):
+        generate(generator)
+
+
+def test_unknown_saved_price_does_not_silently_become_zero(generator):
+    with pytest.raises(ValueError, match="no longer in the catalog"):
+        generate(generator, menu="[2026-10-11,999,3]")
+    generator.generator.generate.assert_not_called()
