@@ -60,7 +60,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Generate test badge
-        if: always()
+        if: always() && env.HAS_GIST_TOKEN == 'true'
         working-directory: proj2
         run: |
           # Extract test results from pytest output
