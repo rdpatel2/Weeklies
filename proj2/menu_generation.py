@@ -239,7 +239,19 @@ class MenuGenerator:
         finally:
             close_connection(conn)
 
-        self.generator = llm_toolkit.LLM(tokens=tokens)
+        self.tokens = tokens
+        self._generator = None
+
+    @property
+    def generator(self):
+        """Load the model only after a feasible set of meals has been found."""
+        if self._generator is None:
+            self._generator = llm_toolkit.LLM(tokens=self.tokens)
+        return self._generator
+
+    @generator.setter
+    def generator(self, value):
+        self._generator = value
 
     def _eligible_candidates(self, allergens, weekday, order_time, max_price_cents=None):
         """Filter stock, open restaurants and allergens; rank valid prices cheapest first."""

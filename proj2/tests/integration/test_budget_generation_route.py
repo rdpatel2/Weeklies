@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from proj2.menu_generation import DAYS_OF_WEEK, MenuGenerator
+from proj2.menu_generation import DAYS_OF_WEEK, MenuGenerator, llm_toolkit
 
 
 @pytest.fixture
@@ -85,6 +85,7 @@ def test_impossible_budget_does_not_change_saved_plan(
     assert response.status_code == 422
     assert "$15.00" in response.get_json()["error"]
     llm.generate.assert_not_called()
+    llm_toolkit.LLM.assert_not_called()
     with sqlite3.connect(temp_db_path) as conn:
         assert (
             conn.execute('SELECT generated_menu FROM "User" WHERE email="test@x.com"').fetchone()[0]
