@@ -117,3 +117,18 @@ def test_omitted_cap_keeps_generation_optional(client, login_session, budget_cat
     assert response.status_code == 200
     assert response.get_json()["weekly_cap_cents"] is None
     assert response.get_json()["item_total_cents"] == 1000
+
+
+def test_profile_offers_cap_and_shows_budget_error_for_regular_form(
+    client, login_session, budget_catalog
+):
+    response = client.post(
+        "/menu/generate",
+        data={"start_date": "2026-10-05", "days": "2", "meal3": "on", "weekly_cap": "9.99"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert 'name="weekly_cap"' in html
+    assert "needs at least $10.00" in html
+    assert 'id="menuError"' in html
