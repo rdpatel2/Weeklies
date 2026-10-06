@@ -12,6 +12,57 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  m0-evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify evaluation instrument and reproduce sample
+        run: python -m unittest discover -s scripts/tests -v
+      - name: Evaluate synthetic planning sessions
+        id: m0
+        shell: bash
+        run: |
+          status=0
+          python scripts/eval_m0.py evals/m0/synthetic.csv --output artifacts/m0-result.json || status=$?
+          # A negative hypothesis result is reportable evidence; an instrument error breaks CI.
+          if [ "$status" -gt 1 ]; then
+            exit "$status"
+          fi
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          report = json.loads(Path("artifacts/m0-result.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## M0 synthetic demonstration\n\n")
+              summary.write(f"Hypothesis verdict: **{report['verdict']}**\n\n")
+              summary.write(f"Pairs: {report['sample_size']}\n\n")
+              summary.write(f"Median time reduction: {report['median_reduction']:.2%}\n\n")
+              for method, rate in report["budget_success_rate"].items():
+                  summary.write(f"{method.title()} complete plans within budget: {rate:.0%}\n\n")
+              summary.write(f"Budget improvement: {report['budget_lift_percentage_points']:.1f} percentage points\n\n")
+              summary.write(f"{report['interpretation']}\n\n")
+              if report["verdict"] == "FAIL":
+                  summary.write("See docs/m0.md for the synthetic review and next experiment.\n")
+          PY
+      - name: Upload M0 evidence and result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-evaluation
+          path: |
+            artifacts/m0-result.json
+            evals/m0/synthetic.csv
+            evals/m0/catalog.csv
+            evals/m0/simulation.json
+            evals/m0/sensitivity.json
+          if-no-files-found: error
+
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -104,4 +155,3 @@ jobs:
             } catch (err) {
               console.log("Badge update failed (non-critical):", err.message);
             }
-
