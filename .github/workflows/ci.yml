@@ -15,6 +15,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      # Only expose availability here; the optional gist action receives the token.
+      HAS_GIST_TOKEN: ${{ secrets.GIST_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -77,7 +80,7 @@ jobs:
           echo "badge=${BADGE}" >> $GITHUB_OUTPUT
 
       - name: Update badge gist
-        if: always()
+        if: always() && env.HAS_GIST_TOKEN == 'true'
         uses: actions/github-script@v7
         env:
           GIST_ID: 0ab63df1c29ad707ee2f0c5bdbf46383
@@ -104,4 +107,3 @@ jobs:
             } catch (err) {
               console.log("Badge update failed (non-critical):", err.message);
             }
-
