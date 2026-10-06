@@ -8,7 +8,13 @@ import re
 from typing import Tuple, List
 
 import proj2.llm_toolkit as llm_toolkit
-from proj2.meal_budget import item_price_cents
+from proj2.meal_budget import (
+    BudgetExceededError,
+    item_price_cents,
+    plan_entries,
+    week_start,
+    weekly_item_totals,
+)
 from proj2.sqlQueries import *
 
 db_file = os.path.join(os.path.dirname(__file__), "CSC510_DB.db")
@@ -222,6 +228,8 @@ class MenuGenerator:
             tokens (int): The number of tokens to use for the LLM generation
         """
         conn = create_connection(db_file)
+        catalog = pd.read_sql_query("SELECT itm_id, price FROM MenuItem", conn)
+        self.item_prices = dict(zip(catalog.itm_id, catalog.price))
         self.menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
         self.restaurants = pd.read_sql_query(
             'SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn
@@ -340,6 +348,54 @@ LLM output:
 {llm_output}"""
         )
 
+    def _update_budgeted_menu(
+        self, menu, preferences, allergens, date, meal_numbers, number_of_days, cap_cents
+    ):
+        """Reserve cheapest remaining meals before offering any budgeted choice."""
+        cap_cents = item_price_cents(cap_cents)
+        start = datetime.date.fromisoformat(date)
+        days = [(start + datetime.timedelta(days=i)).isoformat() for i in range(number_of_days)]
+        weeks = list(dict.fromkeys(week_start(day) for day in days))
+        totals = weekly_item_totals(menu, self.item_prices, weeks)
+        occupied = {(day, meal) for day, _, meal in plan_entries(menu)}
+        slots = []
+        minimum_remaining = dict.fromkeys(weeks, 0)
+        for day in days:
+            weekday = DAYS_OF_WEEK[datetime.date.fromisoformat(day).weekday()]
+            for meal in dict.fromkeys(meal_numbers):
+                _, order_time = get_meal_and_order_time(meal)
+                if (day, meal) in occupied:
+                    continue
+                candidates = self._eligible_candidates(allergens, weekday, order_time)
+                if candidates.empty:
+                    raise BudgetExceededError(f"No eligible meals are available for {day}.")
+                minimum = int(candidates.price_cents.min())
+                week = week_start(day)
+                minimum_remaining[week] += minimum
+                slots.append((day, weekday, meal, week, candidates, minimum))
+
+        # Check every affected week before generating anything; never save a partial plan.
+        for week in weeks:
+            required = totals[week] + minimum_remaining[week]
+            if required > cap_cents:
+                raise BudgetExceededError(
+                    f"Week of {week} needs at least ${required / 100:.2f} in items; "
+                    f"the weekly cap is ${cap_cents / 100:.2f}. "
+                    "Raise the cap or request fewer meals."
+                )
+
+        updated = menu or ""
+        for day, weekday, meal, week, candidates, minimum in slots:
+            minimum_remaining[week] -= minimum
+            available = cap_cents - totals[week] - minimum_remaining[week]
+            affordable = candidates[candidates.price_cents <= available]
+            item = self.__pick_menu_item(preferences, allergens, weekday, meal, affordable)
+            totals[week] += item_price_cents(self.item_prices[item])
+            updated = f"{updated},[{day},{item},{meal}]" if updated else f"[{day},{item},{meal}]"
+        self.weekly_totals_cents = totals
+        self.item_total_cents = sum(totals.values())
+        return updated
+
     def update_menu(
         self,
         menu: str,
@@ -348,6 +404,7 @@ LLM output:
         date: str,
         meal_numbers: List[int],
         number_of_days: int = 1,
+        weekly_cap_cents: int = None,
     ) -> str:
         """
         Updates the menu string with a new menu item based on user preferences, allergens, date, and meal number
@@ -359,10 +416,16 @@ LLM output:
             date (str): The date string in YYYY-MM-DD format
             meal_number (List[int]): The list of meal numbers to generate (1 for breakfast, 2 for lunch, 3 for dinner). e.g. [1,2,3]
             number_of_days (int): The number of days to generate meals for, past the {date} specified
+            weekly_cap_cents (int | None): Item-price limit per Monday–Sunday week,
+                counting all existing meals in that week. None leaves generation uncapped.
 
         Returns:
             str: The updated menu string
         """
+        if weekly_cap_cents is not None:
+            return self._update_budgeted_menu(
+                menu, preferences, allergens, date, meal_numbers, number_of_days, weekly_cap_cents
+            )
         next_date, current_weekday = get_weekday_and_increment(date)
         for x in range(number_of_days):
             for meal_number in meal_numbers:

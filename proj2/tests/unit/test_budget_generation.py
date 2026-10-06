@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from proj2.menu_generation import DAYS_OF_WEEK, MenuGenerator
+from proj2.meal_budget import BudgetExceededError
 
 
 @pytest.fixture
@@ -29,6 +30,7 @@ def generator():
         [{"rtr_id": 1, "hours": json.dumps({day: [0, 2359] for day in DAYS_OF_WEEK})}]
     )
     gen.generator = Mock()
+    gen.item_prices = dict(zip(gen.menu_items.itm_id, gen.menu_items.price))
     return gen
 
 
@@ -71,4 +73,60 @@ def test_empty_candidates_fail_before_model_generation(generator):
     candidates = generator._eligible_candidates("", "Mon", 2000, 499)
     with pytest.raises(RuntimeError, match="No eligible"):
         generator._MenuGenerator__pick_menu_item("", "", "Mon", 3, candidates)
+    generator.generator.generate.assert_not_called()
+
+
+def generate(generator, **overrides):
+    args = dict(
+        menu="",
+        preferences="",
+        allergens="",
+        date="2026-10-05",
+        meal_numbers=[3],
+        number_of_days=2,
+        weekly_cap_cents=1000,
+    )
+    args.update(overrides)
+    return generator.update_menu(**args)
+
+
+def test_plan_fits_exact_cap_and_reserves_later_meals(generator):
+    generator.generator.generate.return_value = (
+        "<|start_of_role|>assistant<|end_of_role|>2<|end_of_text|>"
+    )
+    assert generate(generator) == "[2026-10-05,2,3],[2026-10-06,2,3]"
+    assert generator.item_total_cents == 1000
+    assert generator.weekly_totals_cents == {"2026-10-05": 1000}
+    assert all(
+        "1,Meal 1" not in call.args[1] for call in generator.generator.generate.call_args_list
+    )
+
+
+def test_impossible_budget_is_rejected_before_generation(generator):
+    with pytest.raises(BudgetExceededError, match=r"needs at least \$10.00"):
+        generate(generator, weekly_cap_cents=999)
+    generator.generator.generate.assert_not_called()
+
+
+def test_existing_meals_outside_requested_dates_consume_weekly_budget(generator):
+    # Sunday's saved dinner still belongs to the week of the Monday request.
+    existing = "[2026-10-11,1,3]"
+    with pytest.raises(BudgetExceededError, match=r"needs at least \$20.00"):
+        generate(generator, menu=existing)
+    generator.generator.generate.assert_not_called()
+    assert existing == "[2026-10-11,1,3]"
+
+
+def test_each_calendar_week_has_its_own_cap(generator):
+    generator.generator.generate.return_value = (
+        "<|start_of_role|>assistant<|end_of_role|>2<|end_of_text|>"
+    )
+    generate(generator, date="2026-10-11", weekly_cap_cents=500)
+    assert generator.weekly_totals_cents == {"2026-10-05": 500, "2026-10-12": 500}
+
+
+def test_existing_legacy_dinner_is_preserved_and_counted_once(generator):
+    existing = "[2026-10-05,2]"
+    assert generate(generator, menu=existing, number_of_days=1, weekly_cap_cents=500) == existing
+    assert generator.item_total_cents == 500
     generator.generator.generate.assert_not_called()
