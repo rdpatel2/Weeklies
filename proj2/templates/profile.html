@@ -121,9 +121,13 @@
     </div>
     <div class="card max-w-lg" style="max-width: var(--container);">
       <div class="card-body">
-        {% if request.args.get('gen_error') %}
-          <div class="flash danger" data-autohide="5000">Menu generation failed. Please try again.</div>
-        {% endif %}
+        <div id="menuError" class="flash danger" role="alert" {% if not request.args.get('gen_error') %}hidden{% endif %}>
+          {% if request.args.get('gen_error') == '1' %}
+            Menu generation failed. Please try again.
+          {% else %}
+            {{ request.args.get('gen_error', '') }}
+          {% endif %}
+        </div>
         <form method="POST" action="{{ url_for('generate_menu') }}" class="form-grid">
           <div class="form-row">
             <label for="start_date">Start date</label>
@@ -140,6 +144,13 @@
             <input class="input" type="number" id="days" name="days" min="1" max="14" value="1" style="width:120px;">
           </div>
           <!-- Optional overrides; leave blank to use your saved profile -->
+          <div class="form-row">
+            <label for="weekly_cap">Weekly item-price cap ($, optional)</label>
+            <input class="input" type="number" id="weekly_cap" name="weekly_cap" min="0" step="0.01"
+                   placeholder="e.g., 100.00" aria-describedby="weekly-cap-help">
+            <p id="weekly-cap-help" class="muted">Applies to each Monday–Sunday week, including meals already planned.
+              One serving per meal; taxes, delivery fees, and tips are extra. Leave blank for no cap.</p>
+          </div>
           <div class="form-row">
             <label for="preferences">Preferences (override)</label>
             <input class="input" type="text" id="preferences" name="preferences" placeholder="e.g., high protein, low carb">

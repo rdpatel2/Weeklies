@@ -95,6 +95,28 @@
       </div>
     </div>
 
+    <section class="card" aria-label="Weekly item totals" style="margin-bottom: 20px;">
+      <div class="card-body">
+        <h2>Weekly item totals</h2>
+        <p class="muted">Monday–Sunday, including planned meals outside the displayed month.
+          One serving per meal. Taxes, delivery fees, and tips are extra.</p>
+        {% if item_total_error %}
+          <p class="flash danger">{{ item_total_error }}</p>
+        {% elif weekly_item_totals %}
+          <table class="table">
+            <thead><tr><th scope="col">Week starting</th><th scope="col">Item total</th></tr></thead>
+            <tbody>
+              {% for week, cents in weekly_item_totals.items() %}
+                <tr><td>{{ week }}</td><td>${{ '%.2f'|format(cents / 100) }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">Generate a meal plan to see its weekly item totals.</p>
+        {% endif %}
+      </div>
+    </section>
+
     <!-- Calendar -->
     <div class="calendar-wrap calendar-wide">
       <!-- Unified calendar toolbar -->
