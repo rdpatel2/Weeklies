@@ -1,0 +1,13 @@
+{
+  "name": "weeklies-e2e",
+  "version": "1.0.0",
+  "description": "Cypress E2E test suite for Weeklies",
+  "scripts": {
+    "cypress:run": "cypress run",
+    "cypress:open": "cypress open",
+    "test:e2e": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^16.1.1"
+  }
+}
