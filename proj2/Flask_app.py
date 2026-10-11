@@ -11,6 +11,7 @@ from datetime import timedelta, date, datetime
 from functools import wraps
 from proj2.pdf_receipt import generate_order_receipt_pdf
 from proj2.menu_generation import MenuGenerator
+from proj2.order_progress import order_progress
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort
 
@@ -1338,6 +1339,7 @@ def profile():
                     "id": ord_id,
                     "date": placed,
                     "status": status or "",
+                    "progress": order_progress(status),
                     "restaurant": r_name,
                     "total": total,
                     "has_review": has_review,
