@@ -1,0 +1,15 @@
+{
+  "sampleOrder": {
+    "restaurant_id": 1,
+    "delivery_type": "delivery",
+    "items": [
+      {
+        "itm_id": 1,
+        "qty": 1,
+        "notes": "Extra crispy crust"
+      }
+    ],
+    "tip": 3.0,
+    "eta_minutes": 35
+  }
+}
