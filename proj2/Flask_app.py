@@ -14,6 +14,7 @@ from proj2.menu_generation import MenuGenerator
 from proj2.meal_budget import (
     BudgetExceededError, parse_weekly_cap, plan_entries, week_start, weekly_item_totals
 )
+from proj2.order_progress import order_progress
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort
 
@@ -1365,6 +1366,7 @@ def profile():
                     "id": ord_id,
                     "date": placed,
                     "status": status or "",
+                    "progress": order_progress(status),
                     "restaurant": r_name,
                     "total": total,
                     "has_review": has_review,
