@@ -1377,7 +1377,8 @@ def profile():
     pw_error = request.args.get("pw_error")
 
     return render_template(
-        "profile.html", user=user, orders=orders, pw_updated=pw_updated, pw_error=pw_error
+        "profile.html", user=user, orders=orders, pw_updated=pw_updated, pw_error=pw_error,
+        generation_error=session.pop("menu_generation_error", None),
     )
 
 
@@ -2384,7 +2385,6 @@ def generate_menu():
             number_of_days = 1
         preferences = (payload.get('preferences') or prefs_db).strip()
         allergies = (payload.get('allergens') or allergies_db).strip()
-        want_json = True
     else:
         start_date = (request.form.get('start_date') or date.today().isoformat()).strip()
         try:
@@ -2398,14 +2398,14 @@ def generate_menu():
         meal_numbers = sel or [1,2,3]
         preferences = (request.form.get('preferences') or prefs_db).strip()
         allergies = (request.form.get('allergens') or allergies_db).strip()
-        want_json = False
 
     want_json = request.is_json or request.accept_mimetypes.best == 'application/json'
 
     def generation_error(message, status):
         if want_json:
             return jsonify({"ok": False, "error": message}), status
-        return redirect(url_for('profile', gen_error=message))
+        session['menu_generation_error'] = message
+        return redirect(url_for('profile'))
 
     try:
         cap_value = payload.get('weekly_cap') if request.is_json else request.form.get('weekly_cap')
@@ -2441,13 +2441,20 @@ def generate_menu():
         weeks = list(dict.fromkeys(
             week_start((start + timedelta(days=i)).isoformat()) for i in range(number_of_days)
         ))
-        totals = weekly_item_totals(updated_menu, gen.item_prices, weeks)
+        try:
+            totals = weekly_item_totals(updated_menu, gen.item_prices, weeks)
+        except ValueError:
+            if weekly_cap_cents is not None:
+                raise
+            # Uncapped plans can retain old meals whose catalog prices are unavailable.
+            totals = None
     except BudgetExceededError as exc:
         return generation_error(str(exc), 422)
     except ValueError as exc:
         return generation_error(str(exc), 400)
-    except Exception as exc:
-        return generation_error(str(exc), 500)
+    except Exception:
+        app.logger.exception("Menu generation failed")
+        return generation_error("Menu generation failed. Please try again.", 500)
 
     # Persist
     conn = create_connection(db_file)
@@ -2466,7 +2473,7 @@ def generate_menu():
             "meal_numbers": meal_numbers,
             "number_of_days": number_of_days,
             "weekly_cap_cents": weekly_cap_cents,
-            "item_total_cents": sum(totals.values()),
+            "item_total_cents": sum(totals.values()) if totals is not None else None,
             "weekly_item_totals_cents": totals,
         })
     return redirect(url_for('index'))

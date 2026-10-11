@@ -121,12 +121,8 @@
     </div>
     <div class="card max-w-lg" style="max-width: var(--container);">
       <div class="card-body">
-        <div id="menuError" class="flash danger" role="alert" {% if not request.args.get('gen_error') %}hidden{% endif %}>
-          {% if request.args.get('gen_error') == '1' %}
-            Menu generation failed. Please try again.
-          {% else %}
-            {{ request.args.get('gen_error', '') }}
-          {% endif %}
+        <div id="menuError" class="flash danger" role="alert" {% if not generation_error %}hidden{% endif %}>
+          {{ generation_error or '' }}
         </div>
         <form method="POST" action="{{ url_for('generate_menu') }}" class="form-grid">
           <div class="form-row">

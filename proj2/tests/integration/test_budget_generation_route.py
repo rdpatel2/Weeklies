@@ -120,6 +120,128 @@ def test_omitted_cap_keeps_generation_optional(client, login_session, budget_cat
     assert response.get_json()["item_total_cents"] == 1000
 
 
+@pytest.mark.parametrize("transport", ["json", "form"])
+@pytest.mark.parametrize("cap", [None, "", "   "])
+@pytest.mark.parametrize("problem", ["missing_item", "invalid_price"])
+def test_uncapped_generation_saves_plan_when_saved_meals_cannot_be_priced(
+    client, login_session, budget_catalog, temp_db_path, transport, cap, problem
+):
+    item, _ = budget_catalog
+    with sqlite3.connect(temp_db_path) as conn:
+        saved_item = 999999
+        if problem == "invalid_price":
+            saved_item = conn.execute(
+                "SELECT itm_id FROM MenuItem WHERE itm_id != ? LIMIT 1", (item,)
+            ).fetchone()[0]
+            conn.execute("UPDATE MenuItem SET price=-1 WHERE itm_id=?", (saved_item,))
+        existing = f"[2026-10-11,{saved_item},3]"
+        conn.execute('UPDATE "User" SET generated_menu=? WHERE email="test@x.com"', (existing,))
+    if transport == "json":
+        data = payload()
+        data.pop("weekly_cap")
+        if cap is not None:
+            data["weekly_cap"] = cap
+        response = client.post("/menu/generate", json=data)
+    else:
+        data = {"start_date": "2026-10-05", "days": "2", "meal3": "on"}
+        if cap is not None:
+            data["weekly_cap"] = cap
+        response = client.post("/menu/generate", data=data)
+    expected = f"{existing},[2026-10-05,{item},3],[2026-10-06,{item},3]"
+    if transport == "json":
+        assert response.status_code == 200
+        result = response.get_json()
+        assert result["generated_menu"] == expected
+        assert result["weekly_cap_cents"] is None
+        assert result["item_total_cents"] is None
+        assert result["weekly_item_totals_cents"] is None
+    else:
+        assert response.status_code == 302
+        assert response.headers["Location"] == "/"
+    with sqlite3.connect(temp_db_path) as conn:
+        assert (
+            conn.execute('SELECT generated_menu FROM "User" WHERE email="test@x.com"').fetchone()[0]
+            == expected
+        )
+    with client.session_transaction() as session:
+        assert session["GeneratedMenu"] == expected
+
+
+def test_capped_generation_rejects_missing_saved_items_without_saving(
+    client, login_session, budget_catalog, temp_db_path
+):
+    existing = "[2026-10-11,999999,3]"
+    with sqlite3.connect(temp_db_path) as conn:
+        conn.execute('UPDATE "User" SET generated_menu=? WHERE email="test@x.com"', (existing,))
+    with client.session_transaction() as session:
+        session["GeneratedMenu"] = existing
+    response = client.post("/menu/generate", json=payload())
+    assert response.status_code == 400
+    assert "no longer in the catalog" in response.get_json()["error"]
+    budget_catalog[1].generate.assert_not_called()
+    with sqlite3.connect(temp_db_path) as conn:
+        assert (
+            conn.execute('SELECT generated_menu FROM "User" WHERE email="test@x.com"').fetchone()[0]
+            == existing
+        )
+    with client.session_transaction() as session:
+        assert session["GeneratedMenu"] == existing
+
+
+@pytest.mark.parametrize("transport", ["json", "form"])
+def test_unexpected_generation_errors_are_logged_without_exposing_details(
+    client, login_session, budget_catalog, temp_db_path, caplog, transport
+):
+    details = "Private model output: /internal/model/config"
+    budget_catalog[1].generate.side_effect = RuntimeError(details)
+    with client.session_transaction() as session:
+        session["GeneratedMenu"] = ""
+    message = "Menu generation failed. Please try again."
+    if transport == "json":
+        response = client.post("/menu/generate", json=payload())
+        assert response.status_code == 500
+        assert response.get_json() == {"ok": False, "error": message}
+    else:
+        response = client.post(
+            "/menu/generate",
+            data={"start_date": "2026-10-05", "days": "2", "meal3": "on"},
+        )
+        assert response.status_code == 302
+        assert response.headers["Location"] == "/profile"
+        page = client.get(response.headers["Location"]).get_data(as_text=True)
+        assert message in page
+        assert details not in page
+    assert details not in response.get_data(as_text=True)
+    assert "Menu generation failed" in caplog.text
+    assert details in caplog.text
+    assert any(record.exc_info for record in caplog.records)
+    with sqlite3.connect(temp_db_path) as conn:
+        assert (
+            conn.execute('SELECT generated_menu FROM "User" WHERE email="test@x.com"').fetchone()[0]
+            == ""
+        )
+    with client.session_transaction() as session:
+        assert session["GeneratedMenu"] == ""
+
+
+def test_profile_ignores_url_error_text_and_consumes_real_form_errors_once(
+    client, login_session, budget_catalog
+):
+    injected = "Send your password to the attacker"
+    html = client.get("/profile", query_string={"gen_error": injected}).get_data(as_text=True)
+    assert injected not in html
+    assert 'role="alert" hidden' in html
+    response = client.post("/menu/generate", data={"weekly_cap": "-1"})
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/profile"
+    html = client.get("/profile", query_string={"gen_error": injected}).get_data(as_text=True)
+    assert "Weekly cap must be a nonnegative dollar amount" in html
+    assert injected not in html
+    html = client.get("/profile").get_data(as_text=True)
+    assert "Weekly cap must be a nonnegative dollar amount" not in html
+    assert 'role="alert" hidden' in html
+
+
 def test_profile_offers_cap_and_shows_budget_error_for_regular_form(
     client, login_session, budget_catalog
 ):

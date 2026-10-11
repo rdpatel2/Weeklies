@@ -50,8 +50,15 @@ uses the same dollar amount for `weekly_cap`:
 
 A successful JSON response includes `weekly_cap_cents`, `item_total_cents`, and
 `weekly_item_totals_cents`, keyed by the Monday date of each affected week.
+For an uncapped request, missing catalog items or invalid saved prices do not
+prevent generation or saving the plan; both total fields are `null` when the
+affected weeks cannot be priced. Capped requests still require valid prices
+for all saved meals in those weeks.
 An impossible plan returns HTTP 422 and an explanation. An invalid cap returns
 HTTP 400. HTML form users see the same message on the profile page.
+Form errors are carried in the session and shown once after redirecting, rather
+than read from URL text. Unexpected failures return a fixed retry message and
+log the exception on the server.
 
 The home calendar shows saved item totals by Monday-start week for weeks that
 contain dates in the displayed month. A week at the month boundary includes its
