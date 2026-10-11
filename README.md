@@ -1,20 +1,21 @@
 # 🍽️ WEEKLIES — Intelligent Meal Planning and Delivery System
 
-[![CI](https://github.com/Jawamegamind/Weeklies/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Jawamegamind/Weeklies/actions/workflows/ci.yml)
-[![Docs](https://github.com/Jawamegamind/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/Jawamegamind/Weeklies/actions/workflows/docs.yml)
+[![CI](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
+[![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)]()
 ![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Jawamegamind/0ab63df1c29ad707ee2f0c5bdbf46383/raw/tests-badge.json&cacheSeconds=0)
-[![codecov](https://codecov.io/gh/Jawamegamind/Weeklies/branch/main/graph/badge.svg)](https://codecov.io/gh/Jawamegamind/Weeklies)
+[![codecov](https://codecov.io/gh/rdpatel2/Weeklies/branch/main/graph/badge.svg)](https://codecov.io/gh/rdpatel2/Weeklies)
 [![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/github/license/Jawamegamind/Weeklies.svg)](LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/Jawamegamind/Weeklies.svg)](https://github.com/Jawamegamind/Weeklies/commits)
-[![GitHub issues](https://img.shields.io/github/issues/Jawamegamind/Weeklies.svg)](https://github.com/Jawamegamind/Weeklies/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/Jawamegamind/Weeklies.svg)](https://github.com/Jawamegamind/Weeklies/pulls)
-[![Repo Size](https://img.shields.io/github/repo-size/Jawamegamind/Weeklies.svg)](https://github.com/Jawamegamind/Weeklies)
-[![Contributors](https://img.shields.io/github/contributors/Jawamegamind/Weeklies.svg)](https://github.com/Jawamegamind/Weeklies/graphs/contributors)
+[![Cypress](https://img.shields.io/badge/cypress-tested-brightgreen?logo=cypress&logoColor=white)](https://www.cypress.io/)
+[![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/commits)
+[![GitHub issues](https://img.shields.io/github/issues/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/pulls)
+[![Repo Size](https://img.shields.io/github/repo-size/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies)
+[![Contributors](https://img.shields.io/github/contributors/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/graphs/contributors)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Lint: ruff](https://img.shields.io/badge/lint-ruff-46a2f1?logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
-[![DOI](https://zenodo.org/badge/1094607724.svg)](https://doi.org/10.5281/zenodo.17844813)
+[![DOI](https://img.shields.io/badge/DOI-pending-lightgrey.svg)]()
 ---
 
 ## 🧠 Project Overview
