@@ -26,7 +26,7 @@ Cypress.Commands.add("loginAsRestaurant", (email = "owner@tasteofitaly.com", pas
   cy.visit("/restaurant/login");
   cy.get('input[name="email"]').clear().type(email);
   cy.get('input[name="password"]').clear().type(password);
-  cy.get('button[type="submit"]').click();
+  cy.get('input[type="submit"], button[type="submit"]').click();
   // Ensure we are redirected to the dashboard
   cy.location("pathname").should("include", "/restaurant/dashboard");
 });
