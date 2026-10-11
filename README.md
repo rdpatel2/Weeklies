@@ -3,7 +3,7 @@
 [![CI](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
 [![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)]()
-![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Jawamegamind/0ab63df1c29ad707ee2f0c5bdbf46383/raw/tests-badge.json&cacheSeconds=0)
+![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rdpatel2/6d51e7a5086ac9b427e43f47f5d7d29e/raw/tests-badge.json&cacheSeconds=0)
 [![codecov](https://codecov.io/gh/rdpatel2/Weeklies/branch/main/graph/badge.svg)](https://codecov.io/gh/rdpatel2/Weeklies)
 [![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Cypress](https://img.shields.io/badge/cypress-tested-brightgreen?logo=cypress&logoColor=white)](https://www.cypress.io/)
