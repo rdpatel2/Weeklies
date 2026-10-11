@@ -8,6 +8,13 @@ import re
 from typing import Tuple, List
 
 import proj2.llm_toolkit as llm_toolkit
+from proj2.meal_budget import (
+    BudgetExceededError,
+    item_price_cents,
+    plan_entries,
+    week_start,
+    weekly_item_totals,
+)
 from proj2.sqlQueries import *
 
 db_file = os.path.join(os.path.dirname(__file__), "CSC510_DB.db")
@@ -155,12 +162,19 @@ def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The filtered DataFrame with menu items containing the specified allergens removed
     """
-    for index, rows in menu_items.iterrows():
-        if rows["allergens"] is not None:
-            item_allergens = rows["allergens"].split(",")
-            if any(allergen in item_allergens for allergen in allergens.split(",")):
-                menu_items.drop(index, inplace=True)
-    return menu_items
+    prohibited = {
+        value.strip().casefold() for value in (allergens or "").split(",") if value.strip()
+    }
+
+    def allowed(value):
+        declared = (
+            set()
+            if pd.isna(value)
+            else {tag.strip().casefold() for tag in str(value).split(",") if tag.strip()}
+        )
+        return not prohibited.intersection(declared)
+
+    return menu_items.loc[menu_items["allergens"].map(allowed).astype(bool)].copy()
 
 
 def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int) -> pd.DataFrame:
@@ -176,7 +190,15 @@ def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int)
         pd.DataFrame: The filtered DataFrame with closed restaurants removed
     """
     for index, rows in restaurant.iterrows():
-        opening_times = json.loads(rows["hours"])[weekday]
+        try:
+            opening_times = json.loads(rows["hours"])[weekday]
+            if not isinstance(opening_times, list) or not all(
+                isinstance(value, (int, float)) for value in opening_times
+            ):
+                raise ValueError("Invalid hours")
+        except (TypeError, ValueError, KeyError):
+            restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+            continue
         if len(opening_times) % 2 == 1:
             print("Odd opening times - cannot process")
             restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
@@ -197,24 +219,66 @@ class MenuGenerator:
     MenuGenerator class that uses an LLM to generate menu items based on user preferences and restrictions
     """
 
-    def __init__(self, tokens: int = 500):
+    def __init__(self, tokens: int = 500, database_path: str = None):
         """
         Initializes the MenuGenerator with menu items and restaurants from the database and initializes
         the local LLM.
 
         Args:
             tokens (int): The number of tokens to use for the LLM generation
+            database_path (str | None): Use the caller's catalog when supplied.
         """
-        conn = create_connection(db_file)
-        self.menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
-        self.restaurants = pd.read_sql_query(
-            'SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn
+        conn = create_connection(database_path or db_file)
+        try:
+            catalog = pd.read_sql_query("SELECT itm_id, price FROM MenuItem", conn)
+            self.item_prices = dict(zip(catalog.itm_id, catalog.price))
+            self.menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
+            self.restaurants = pd.read_sql_query(
+                'SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn
+            )
+        finally:
+            close_connection(conn)
+
+        self.tokens = tokens
+        self._generator = None
+
+    @property
+    def generator(self):
+        """Load the model only after a feasible set of meals has been found."""
+        if self._generator is None:
+            self._generator = llm_toolkit.LLM(tokens=self.tokens)
+        return self._generator
+
+    @generator.setter
+    def generator(self, value):
+        self._generator = value
+
+    def _eligible_candidates(self, allergens, weekday, order_time, max_price_cents=None):
+        """Filter stock, open restaurants and allergens; rank valid prices cheapest first."""
+        combined = pd.merge(
+            self.menu_items[self.menu_items["instock"] == 1],
+            self.restaurants,
+            on="rtr_id",
+            how="inner",
         )
-        close_connection(conn)
+        combined = filter_closed_restaurants(combined, weekday, order_time)
+        combined = filter_allergens(combined, allergens)
 
-        self.generator = llm_toolkit.LLM(tokens=tokens)
+        def valid_price(value):
+            try:
+                return item_price_cents(value)
+            except ValueError:
+                return None
 
-    def __get_context(self, allergens: str, weekday: str, order_time: int, num_choices: int) -> str:
+        combined = combined.assign(price_cents=combined["price"].map(valid_price))
+        combined = combined[combined["price_cents"].notna()]
+        if max_price_cents is not None:
+            combined = combined[combined["price_cents"] <= max_price_cents]
+        return combined.sort_values(["price_cents", "itm_id"], kind="stable")
+
+    def __get_context(
+        self, allergens: str, weekday: str, order_time: int, num_choices: int, candidates=None
+    ) -> str:
         """
         Generates the context block for the LLM based on the provided allergens, date, and order time
 
@@ -230,16 +294,13 @@ class MenuGenerator:
         """
         start = time.time()
 
-        combined = pd.merge(self.menu_items, self.restaurants, on="rtr_id", how="left")
-
-        ## Removes restaurants that are closed during the order time
-        combined = filter_closed_restaurants(combined, weekday, order_time)
-
-        ## Removes items that contain allergens
-        combined = filter_allergens(combined, allergens)
-
-        ## Randomly selects ITEM_CHOICES number of items to present to the LLM
-        choices = limit_scope(combined, num_choices)
+        if candidates is None:
+            combined = self._eligible_candidates(allergens, weekday, order_time)
+            choices = limit_scope(combined, num_choices)
+        else:
+            # Budgeted generation always exposes the cheapest ranked options first.
+            combined = candidates.head(num_choices)
+            choices = range(len(combined))
 
         context_data = "item_id,name,description,price,calories\n"
 
@@ -255,7 +316,7 @@ class MenuGenerator:
         return context_data, item_ids
 
     def __pick_menu_item(
-        self, preferences: str, allergens: str, weekday: str, meal_number: int
+        self, preferences: str, allergens: str, weekday: str, meal_number: int, candidates=None
     ) -> int:
         """
         Picks a menu item based on user preferences, allergens, date, and meal number
@@ -275,7 +336,11 @@ class MenuGenerator:
 
         ## Tries to get output from LLM a number of times, increasing the number of options every time
         for x in range(MAX_LLM_TRIES):
-            context, item_ids = self.__get_context(allergens, weekday, order_time, num_choices)
+            context, item_ids = self.__get_context(
+                allergens, weekday, order_time, num_choices, candidates
+            )
+            if not item_ids:
+                raise RuntimeError("No eligible menu items are available for this meal.")
 
             ## Gets the prompt
             system = SYSTEM_TEMPLATE
@@ -298,6 +363,54 @@ LLM output:
 {llm_output}"""
         )
 
+    def _update_budgeted_menu(
+        self, menu, preferences, allergens, date, meal_numbers, number_of_days, cap_cents
+    ):
+        """Reserve cheapest remaining meals before offering any budgeted choice."""
+        cap_cents = item_price_cents(cap_cents)
+        start = datetime.date.fromisoformat(date)
+        days = [(start + datetime.timedelta(days=i)).isoformat() for i in range(number_of_days)]
+        weeks = list(dict.fromkeys(week_start(day) for day in days))
+        totals = weekly_item_totals(menu, self.item_prices, weeks)
+        occupied = {(day, meal) for day, _, meal in plan_entries(menu)}
+        slots = []
+        minimum_remaining = dict.fromkeys(weeks, 0)
+        for day in days:
+            weekday = DAYS_OF_WEEK[datetime.date.fromisoformat(day).weekday()]
+            for meal in dict.fromkeys(meal_numbers):
+                _, order_time = get_meal_and_order_time(meal)
+                if (day, meal) in occupied:
+                    continue
+                candidates = self._eligible_candidates(allergens, weekday, order_time)
+                if candidates.empty:
+                    raise BudgetExceededError(f"No eligible meals are available for {day}.")
+                minimum = int(candidates.price_cents.min())
+                week = week_start(day)
+                minimum_remaining[week] += minimum
+                slots.append((day, weekday, meal, week, candidates, minimum))
+
+        # Check every affected week before generating anything; never save a partial plan.
+        for week in weeks:
+            required = totals[week] + minimum_remaining[week]
+            if required > cap_cents:
+                raise BudgetExceededError(
+                    f"Week of {week} needs at least ${required / 100:.2f} in items; "
+                    f"the weekly cap is ${cap_cents / 100:.2f}. "
+                    "Raise the cap or request fewer meals."
+                )
+
+        updated = menu or ""
+        for day, weekday, meal, week, candidates, minimum in slots:
+            minimum_remaining[week] -= minimum
+            available = cap_cents - totals[week] - minimum_remaining[week]
+            affordable = candidates[candidates.price_cents <= available]
+            item = self.__pick_menu_item(preferences, allergens, weekday, meal, affordable)
+            totals[week] += item_price_cents(self.item_prices[item])
+            updated = f"{updated},[{day},{item},{meal}]" if updated else f"[{day},{item},{meal}]"
+        self.weekly_totals_cents = totals
+        self.item_total_cents = sum(totals.values())
+        return updated
+
     def update_menu(
         self,
         menu: str,
@@ -306,6 +419,7 @@ LLM output:
         date: str,
         meal_numbers: List[int],
         number_of_days: int = 1,
+        weekly_cap_cents: int = None,
     ) -> str:
         """
         Updates the menu string with a new menu item based on user preferences, allergens, date, and meal number
@@ -317,10 +431,16 @@ LLM output:
             date (str): The date string in YYYY-MM-DD format
             meal_number (List[int]): The list of meal numbers to generate (1 for breakfast, 2 for lunch, 3 for dinner). e.g. [1,2,3]
             number_of_days (int): The number of days to generate meals for, past the {date} specified
+            weekly_cap_cents (int | None): Item-price limit per Monday–Sunday week,
+                counting all existing meals in that week. None leaves generation uncapped.
 
         Returns:
             str: The updated menu string
         """
+        if weekly_cap_cents is not None:
+            return self._update_budgeted_menu(
+                menu, preferences, allergens, date, meal_numbers, number_of_days, weekly_cap_cents
+            )
         next_date, current_weekday = get_weekday_and_increment(date)
         for x in range(number_of_days):
             for meal_number in meal_numbers:
