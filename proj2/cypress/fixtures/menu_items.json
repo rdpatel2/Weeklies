@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "restaurant_id": 1,
+    "name": "Margherita Pizza",
+    "price": 1499,
+    "allergens": "dairy, gluten"
+  },
+  {
+    "id": 2,
+    "restaurant_id": 1,
+    "name": "Penne Arrabbiata",
+    "price": 1299,
+    "allergens": "gluten, dairy"
+  },
+  {
+    "id": 5,
+    "restaurant_id": 2,
+    "name": "Avocado Quinoa Bowl",
+    "price": 1350,
+    "allergens": "none"
+  }
+]
