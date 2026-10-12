@@ -15,10 +15,14 @@ pytestmark = pytest.mark.skipif(
 
 db_file = os.path.join(os.path.dirname(__file__), "../../CSC510_DB.db")
 
-conn = create_connection(db_file)
-menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
-restaurants = pd.read_sql_query('SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn)
-close_connection(conn)
+try:
+    conn = create_connection(db_file)
+    menu_items = pd.read_sql_query("SELECT * FROM MenuItem WHERE instock == 1", conn)
+    restaurants = pd.read_sql_query('SELECT rtr_id, hours FROM Restaurant WHERE status=="Open"', conn)
+    close_connection(conn)
+except Exception:
+    menu_items = pd.DataFrame()
+    restaurants = pd.DataFrame()
 
 
 def test_get_meal_and_order_time_breakfast():
