@@ -1,7 +1,7 @@
 # ⚙️ Installation Guide
 
 > Tested on **Python 3.11+** (recommended: 3.12).  
-> Follow the steps below to set up, run, and document the project on any OS.
+> Follow the steps below to set up, run, and test the project on any OS.
 
 ---
 
@@ -10,8 +10,8 @@
 ### 🪟 Windows (PowerShell)
 ```powershell
 # 1️⃣ Clone the repository
-git clone https://github.com/TaylorBrown96/SE25Fall.git
-cd SE25Fall
+git clone https://github.com/rdpatel2/Weeklies.git
+cd Weeklies
 
 # 2️⃣ Create and activate a virtual environment
 py -3 -m venv .venv
@@ -24,11 +24,11 @@ python -m pip install --upgrade pip
 pip install -r proj2/requirements.txt
 ```
 
-### 🐧MacOS / Linux (Bash/Zsh)
+### 🐧 MacOS / Linux (Bash/Zsh)
 ```bash
 # 1️⃣ Clone the repository
-git clone https://github.com/TaylorBrown96/SE25Fall.git
-cd SE25Fall
+git clone https://github.com/rdpatel2/Weeklies.git
+cd Weeklies
 
 # 2️⃣ Create & activate a venv
 python3 -m venv .venv
@@ -41,22 +41,17 @@ pip install -r proj2/requirements.txt
 
 ---
 
-## 🚀Usage
+## 🚀 Usage
 
 ### Running the Application
 Once dependencies are installed and the virtual environment is activated, you can run the Flask server:
 
-### 🪟Windows (PowerShell)
-```powershell
-# Start the development server
-flask run
-```
-
-### 🐧MacOS / Linux (Bash/Zsh)
 ```bash
 # Start the development server
 flask run
 ```
+
+The application will be available at `http://127.0.0.1:5000`.
 
 > [!NOTE]
 > If you have downloaded the repo locally and you're running into issues with
@@ -65,32 +60,57 @@ flask run
 
 ---
 
-## 🧪Running Tests
-Execute unit tests using pytest:
+## 🧪 Running Tests
+
+### Python Tests (pytest)
+Execute the test suite using pytest:
 ```bash
-# For full information run:
-pytest
-# Add a '-q'(quiet) flag to show concise, easy-to-read output (dots for passes, 'F' for failures):
+# Run all tests with verbose output
+pytest -v
+
+# Run with quiet output (dots for passes, F for failures)
 pytest -q
+
+# Run a specific test category
+pytest proj2/tests/unit/ -v
+pytest proj2/tests/integration/ -v
+pytest proj2/tests/e2e/ -v
 ```
+
+### Cypress E2E Tests
+Cypress tests require Node.js (v18+) and a running Flask server:
+
+```bash
+# Install Cypress (one-time setup)
+cd proj2
+npm install
+
+# Run Cypress tests headlessly
+npx cypress run
+
+# Open Cypress interactive runner
+npx cypress open
+```
+
+> [!NOTE]
+> Cypress tests expect the Flask server to be running on `http://127.0.0.1:5000`.
+> Start the server in a separate terminal before running Cypress.
 
 ---
 
-## 📚Documentation
+## 📚 Documentation
 
 ### _Documentation is generated using pdoc._
 Documentation is automatically generated using pdoc and deployed to GitHub Pages whenever new changes are merged into the `main` branch.
 
 ### 🧩 Automated Docs
 * CI/CD workflow (`docs.yml`) builds and publishes docs from `proj2/` to the `gh-pages` branch.
-
 * Live documentation becomes available at the GitHub Pages link after each successful merge.
-
 * Source code is hidden; only public functions, classes, and docstrings are shown.
 
 ### 🖥️ Build Docs Locally
-You can also generate and preview the documentation manually:
-### 🪟Windows (PowerShell)
+
+#### 🪟 Windows (PowerShell)
 ```powershell
 # Temporarily add current directory to Python path
 $env:PYTHONPATH="." ;
@@ -100,7 +120,7 @@ python .\scripts\build_docs.py
 start proj2\site\index.html
 ```
 
-### 🐧MacOS / Linux (Bash/Zsh)
+#### 🐧 MacOS / Linux (Bash/Zsh)
 ```bash
 # Temporarily add current directory to Python path
 export PYTHONPATH="."
