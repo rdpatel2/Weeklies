@@ -94,7 +94,7 @@ def temp_db_path():
         os.remove(path)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def app(temp_db_path):
 
     Flask_app.db_file = temp_db_path
