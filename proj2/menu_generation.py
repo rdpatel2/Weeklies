@@ -144,6 +144,21 @@ def limit_scope(items: pd.DataFrame, num_choices: int) -> List[int]:
     return choices
 
 
+def parse_allergens(allergens) -> set:
+    """
+    Normalizes a comma-separated allergen string into a set of lowercase tokens
+
+    Args:
+        allergens (str | None): A comma-separated string such as "Gluten, Soy" (None/NaN allowed)
+
+    Returns:
+        set: The set of allergen names, stripped and lowercased, with empty entries removed
+    """
+    if not isinstance(allergens, str):
+        return set()
+    return {a.strip().lower() for a in allergens.split(",") if a.strip()}
+
+
 def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     """
     Filters out menu items that contain any of the specified allergens from the provided DataFrame
@@ -155,11 +170,10 @@ def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The filtered DataFrame with menu items containing the specified allergens removed
     """
+    blocked = parse_allergens(allergens)
     for index, rows in menu_items.iterrows():
-        if rows["allergens"] is not None:
-            item_allergens = rows["allergens"].split(",")
-            if any(allergen in item_allergens for allergen in allergens.split(",")):
-                menu_items.drop(index, inplace=True)
+        if parse_allergens(rows["allergens"]) & blocked:
+            menu_items.drop(index, inplace=True)
     return menu_items
 
 
