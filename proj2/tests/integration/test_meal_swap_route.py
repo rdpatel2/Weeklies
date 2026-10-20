@@ -232,3 +232,63 @@ def test_form_rejection_redirects_with_error(logged_in, plan, temp_db_path):
     assert resp.status_code == 302
     assert "swap_error=allergen" in resp.headers["Location"]
     assert stored_menu(temp_db_path, plan["usr_id"]) == plan["menu"]
+
+
+# ---- GET /menu/swap/options ----
+
+
+def options(client, date, meal):
+    return client.get(f"/menu/swap/options?date={date}&meal={meal}")
+
+
+def test_options_only_list_eligible_items(logged_in, plan):
+    ids = plan["ids"]
+    resp = options(logged_in, MONDAY, 2)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["current_itm_id"] == ids["lunch"]
+    listed = {o["itm_id"] for o in data["options"]}
+
+    assert ids["safe"] in listed
+    assert ids["breakfast"] in listed
+    for blocked in ("lunch", "peanut", "sold_out", "closed_rtr", "dinner_only"):
+        assert ids[blocked] not in listed
+
+
+def test_options_depend_on_meal_time(logged_in, plan):
+    listed = {o["itm_id"] for o in options(logged_in, MONDAY, 3).get_json()["options"]}
+    assert plan["ids"]["dinner_only"] in listed
+
+
+def test_options_include_display_fields(logged_in, plan):
+    opts = options(logged_in, MONDAY, 2).get_json()["options"]
+    safe = next(o for o in opts if o["itm_id"] == plan["ids"]["safe"])
+    assert safe["name"] == "Rice Bowl"
+    assert safe["restaurant_name"] == "Swap Open"
+    assert safe["price"] == 1000
+
+
+def test_every_listed_option_can_be_swapped_in(logged_in, plan):
+    opts = options(logged_in, MONDAY, 2).get_json()["options"]
+    assert opts
+    assert swap(logged_in, MONDAY, 2, opts[0]["itm_id"]).status_code == 200
+
+
+def test_options_listing_does_not_modify_plan(logged_in, plan, temp_db_path):
+    options(logged_in, MONDAY, 2)
+    assert stored_menu(temp_db_path, plan["usr_id"]) == plan["menu"]
+
+
+def test_options_empty_slot(logged_in, plan):
+    resp = options(logged_in, TUESDAY, 3)
+    assert resp.status_code == 404
+    assert resp.get_json()["error"] == "slot_not_found"
+
+
+@pytest.mark.parametrize("date,meal", [("bad", 1), (MONDAY, 0), (MONDAY, "")])
+def test_options_invalid_slot(logged_in, plan, date, meal):
+    assert options(logged_in, date, meal).status_code == 400
+
+
+def test_options_requires_login(client):
+    assert options(client, MONDAY, 1).status_code == 401
