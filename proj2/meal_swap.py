@@ -7,7 +7,16 @@ Legacy entries without a meal number are treated as dinner, matching
 Flask_app.parse_generated_menu.
 """
 
+import datetime
 import re
+
+from proj2.menu_generation import (
+    DAYS_OF_WEEK,
+    get_meal_and_order_time,
+    is_restaurant_open,
+    parse_allergens,
+)
+from proj2.sqlQueries import fetch_all, fetch_one
 
 ## Matches one menu entry; the meal number is optional for legacy entries
 SLOT_PATTERN = re.compile(r"\[\s*(\d{4}-\d{2}-\d{2})\s*,\s*([0-9]+)\s*(?:,\s*([123])\s*)?\]")
@@ -71,3 +80,102 @@ def replace_menu_slot(menu: str, date: str, meal: int, new_itm_id: int) -> str:
     if not found:
         raise SlotNotFoundError(f"No planned meal {meal} on {date}")
     return updated
+
+
+## Columns loaded for a swap candidate; keys of the dicts returned by load_swap_item
+_ITEM_COLUMNS = ("itm_id", "rtr_id", "name", "instock", "allergens", "restaurant_status", "hours")
+
+_ITEM_SQL = """
+    SELECT m.itm_id, m.rtr_id, m.name, m.instock, m.allergens, r.status, r.hours
+    FROM MenuItem m
+    JOIN Restaurant r ON r.rtr_id = m.rtr_id
+"""
+
+
+def slot_weekday_and_time(date: str, meal: int):
+    """
+    Maps a slot to the weekday and order time used for availability checks
+
+    Args:
+        date (str): The slot date in YYYY-MM-DD format
+        meal (int): The slot meal number (1, 2, or 3)
+
+    Returns:
+        Tuple[str, int]: The weekday ("Mon".."Sun") and the meal's order time in HHMM format
+
+    Raises:
+        ValueError: if the date is not a valid YYYY-MM-DD date or the meal is not 1, 2, or 3
+    """
+    weekday = DAYS_OF_WEEK[datetime.date.fromisoformat(date).weekday()]
+    _, order_time = get_meal_and_order_time(meal)
+    return weekday, order_time
+
+
+def swap_rejection(item, user_allergies: str, date: str, meal: int):
+    """
+    Checks whether a menu item may fill a date/meal slot for a user
+
+    Args:
+        item (dict | None): A candidate loaded by load_swap_item
+        user_allergies (str): The user's comma-separated allergies, as stored on their account
+        date (str): The slot date in YYYY-MM-DD format
+        meal (int): The slot meal number (1, 2, or 3)
+
+    Returns:
+        Tuple[str, str] | None: (error_code, message) if the item is not allowed, otherwise None
+    """
+    if item is None:
+        return "item_not_found", "That menu item does not exist."
+    if not item["instock"]:
+        return "out_of_stock", f"{item['name']} is currently out of stock."
+    if (item["restaurant_status"] or "").strip().lower() != "open":
+        return "restaurant_unavailable", "That restaurant is not currently taking orders."
+
+    weekday, order_time = slot_weekday_and_time(date, meal)
+    if not is_restaurant_open(item["hours"], weekday, order_time):
+        return "restaurant_closed", f"That restaurant is closed at that meal time on {weekday}."
+
+    conflicts = parse_allergens(item["allergens"]) & parse_allergens(user_allergies)
+    if conflicts:
+        return "allergen", f"{item['name']} contains your allergens: {', '.join(sorted(conflicts))}."
+    return None
+
+
+def load_swap_item(conn, itm_id: int):
+    """
+    Loads one menu item with the restaurant fields needed for swap checks
+
+    Args:
+        conn (sqlite3.Connection): An open database connection
+        itm_id (int): The menu item ID
+
+    Returns:
+        dict | None: The item fields keyed by _ITEM_COLUMNS, or None if it does not exist
+    """
+    row = fetch_one(conn, _ITEM_SQL + " WHERE m.itm_id = ?", (itm_id,))
+    return dict(zip(_ITEM_COLUMNS, row)) if row else None
+
+
+def list_swap_options(conn, user_allergies: str, date: str, meal: int, exclude_itm_id=None):
+    """
+    Lists every menu item that would pass swap_rejection for a slot
+
+    Args:
+        conn (sqlite3.Connection): An open database connection
+        user_allergies (str): The user's comma-separated allergies
+        date (str): The slot date in YYYY-MM-DD format
+        meal (int): The slot meal number (1, 2, or 3)
+        exclude_itm_id (int | None): An item to leave out, typically the one already planned
+
+    Returns:
+        List[dict]: The eligible items, ordered by itm_id
+    """
+    rows = fetch_all(conn, _ITEM_SQL + " WHERE m.instock = 1 ORDER BY m.itm_id")
+    options = []
+    for row in rows:
+        item = dict(zip(_ITEM_COLUMNS, row))
+        if item["itm_id"] == exclude_itm_id:
+            continue
+        if swap_rejection(item, user_allergies, date, meal) is None:
+            options.append(item)
+    return options
