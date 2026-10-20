@@ -21,7 +21,7 @@ from proj2.meal_swap import (
     swap_rejection,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort
+from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort, make_response
 
 # Use ONLY these helpers for DB access
 from proj2.sqlQueries import (
@@ -532,14 +532,8 @@ def restaurant_required(f):
         if not session.get("restaurant_mode") or not session.get("rtr_id"):
             return redirect(url_for("restaurant_login"))
 
-        # Call the route function
-        response = f(*args, **kwargs)
-
-        # If response is a string, convert to Response object
-        if isinstance(response, str):
-            from flask import make_response
-
-            response = make_response(response)
+        # Call the route function and normalize str / (body, status) tuples into a Response
+        response = make_response(f(*args, **kwargs))
 
         # Add cache-control headers to prevent browser caching
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
