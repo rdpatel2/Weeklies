@@ -356,6 +356,20 @@ def build_calendar_cells(gen_map, year, month, items_by_id):
     return cells
 
 
+## Banner text for /?swap_error=<code> after a form-based swap
+SWAP_ERROR_MESSAGES = {
+    "invalid_slot": "That meal slot is not valid.",
+    "invalid_item": "Choose an item to swap in.",
+    "slot_not_found": "There is no planned meal in that slot.",
+    "same_item": "That item is already planned for this slot.",
+    "item_not_found": "That menu item does not exist.",
+    "out_of_stock": "That item is out of stock.",
+    "restaurant_unavailable": "That restaurant is not currently taking orders.",
+    "restaurant_closed": "That restaurant is closed at that meal time.",
+    "allergen": "That item contains one of your allergens.",
+}
+
+
 # ---------------------- Routes ----------------------
 
 
@@ -413,8 +427,17 @@ def index(year, month):
     prev_m = (cur.replace(day=1) - timedelta(days=1)).replace(day=1)
     next_m = (cur.replace(day=28) + timedelta(days=10)).replace(day=1)
 
+    swap_notice = None
+    if request.args.get("swapped"):
+        swap_notice = ("success", "Meal swapped. The rest of your plan is unchanged.")
+    elif request.args.get("swap_error"):
+        swap_notice = ("danger", SWAP_ERROR_MESSAGES.get(
+            request.args.get("swap_error"), "That meal could not be swapped."
+        ))
+
     return render_template(
         "index.html",
+        swap_notice=swap_notice,
         username=session["Username"],
         month_name=calendar.month_name[month],
         month=month,
