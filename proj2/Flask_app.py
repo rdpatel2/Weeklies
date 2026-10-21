@@ -1,5 +1,7 @@
 import os
 import re
+import logging
+import secrets
 import argparse
 import math
 import json
@@ -36,8 +38,32 @@ from proj2.sqlQueries import (
     execute_query,
 )
 
+SECRET_KEY_ENV = "WEEKLIES_SECRET_KEY"
+
+
+def load_secret_key(environ=None) -> str:
+    """
+    Return the session signing key from the environment, or a random per-process key.
+    Args:
+        environ: Mapping to read from (defaults to os.environ; injectable for tests).
+    Returns:
+        str: The configured key, or a fresh random key if none is set.
+    """
+    environ = os.environ if environ is None else environ
+    key = (environ.get(SECRET_KEY_ENV) or "").strip()
+    if key:
+        return key
+    # A key committed to the repo lets anyone forge session cookies, so never
+    # fall back to a fixed string. A random key is safe; sessions just reset on restart.
+    logging.getLogger(__name__).warning(
+        "%s is not set; using a random key, so logins reset when the server restarts.",
+        SECRET_KEY_ENV,
+    )
+    return secrets.token_hex(32)
+
+
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "your_secret_key_here"
+app.config["SECRET_KEY"] = load_secret_key()
 
 db_file = os.path.join(os.path.dirname(__file__), "CSC510_DB.db")
 
