@@ -94,8 +94,12 @@ def load_secret_key(environ=None, key_file=None) -> str:
     return key or secrets.token_hex(32)
 
 
+# Anchored to this file: Flask's instance_path depends on how the module was imported
+# (it differed between running from the repo root and from proj2/).
+SECRET_KEY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "instance", "secret_key")
+
 app = Flask(__name__)
-app.config["SECRET_KEY"] = load_secret_key(key_file=os.path.join(app.instance_path, "secret_key"))
+app.config["SECRET_KEY"] = load_secret_key(key_file=SECRET_KEY_FILE)
 
 db_file = os.path.join(os.path.dirname(__file__), "CSC510_DB.db")
 

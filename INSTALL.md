@@ -54,7 +54,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 | Variable | Purpose | If unset |
 |---|---|---|
-| `WEEKLIES_SECRET_KEY` | Signs session cookies. Never commit a real value. | On first run the app generates a key and saves it to `instance/secret_key` (git-ignored), then reuses it, so logins survive restarts and auto-reloads. Delete that file to log everyone out. |
+| `WEEKLIES_SECRET_KEY` | Signs session cookies. Never commit a real value. | On first run the app generates a key and saves it to `proj2/instance/secret_key` (git-ignored), then reuses it, so logins survive restarts and auto-reloads. Delete that file to log everyone out. |
 | `FLASK_DEBUG` | `1` enables auto-reload and the interactive debugger for local development. | Debug is off. |
 
 When starting the app directly with `python -m proj2.Flask_app`, debug mode is off unless you pass `--debug`. Never enable it on a server others can reach: the debugger lets anyone who sees an error page run code on the machine.
