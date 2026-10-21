@@ -126,7 +126,8 @@ Weeklies/
 │   ├── pytest.ini                     # Test configuration
 │   ├── pyproject.toml                 # Black / Ruff config
 │   ├── pdoc.toml                      # Documentation config
-│   └── cypress.config.js              # Cypress E2E config
+│   ├── cypress.config.js              # Cypress E2E config
+│   └── .coderabbit.yaml               # CodeRabbit PR review bot config
 │
 └── 📖 Documentation
     ├── README.md                      # This file
@@ -134,6 +135,7 @@ Weeklies/
     ├── CONTRIBUTING.md                # Contribution guidelines
     ├── CODE-OF-CONDUCT.md             # Community standards
     ├── THIRD_PARTY_LIBRARIES.md       # Dependency licenses
+    ├── AI_DISCLOSURE.md               # AI use & verification disclosure
     └── LICENSE.md                     # MIT License
 ```
 
