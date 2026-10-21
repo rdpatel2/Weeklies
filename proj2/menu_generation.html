@@ -90,10 +90,7 @@
                                 <a class="function" href="#MenuGenerator.__init__">MenuGenerator</a>
                         </li>
                         <li>
-                                <a class="variable" href="#MenuGenerator.menu_items">menu_items</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#MenuGenerator.restaurants">restaurants</a>
+                                <a class="variable" href="#MenuGenerator.tokens">tokens</a>
                         </li>
                         <li>
                                 <a class="variable" href="#MenuGenerator.generator">generator</a>
@@ -417,7 +414,7 @@
                             <div id="MenuGenerator.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">MenuGenerator</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span></span>)</span>
+        <span class="name">MenuGenerator</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span>, </span><span class="param"><span class="n">database_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -427,29 +424,19 @@
 the local LLM.</p>
 
 <p>Args:
-    tokens (int): The number of tokens to use for the LLM generation</p>
+    tokens (int): The number of tokens to use for the LLM generation
+    database_path (str | None): Use the caller's catalog when supplied.</p>
 </div>
 
 
                             </div>
-                            <div id="MenuGenerator.menu_items" class="classattr">
+                            <div id="MenuGenerator.tokens" class="classattr">
                                 <div class="attr variable">
-            <span class="name">menu_items</span>
+            <span class="name">tokens</span>
 
         
     </div>
-    <a class="headerlink" href="#MenuGenerator.menu_items"></a>
-    
-    
-
-                            </div>
-                            <div id="MenuGenerator.restaurants" class="classattr">
-                                <div class="attr variable">
-            <span class="name">restaurants</span>
-
-        
-    </div>
-    <a class="headerlink" href="#MenuGenerator.restaurants"></a>
+    <a class="headerlink" href="#MenuGenerator.tokens"></a>
     
     
 
@@ -462,14 +449,16 @@ the local LLM.</p>
     </div>
     <a class="headerlink" href="#MenuGenerator.generator"></a>
     
-    
+            <div class="docstring"><p>Load the model only after a feasible set of meals has been found.</p>
+</div>
+
 
                             </div>
                             <div id="MenuGenerator.update_menu" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">update_menu</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">menu</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">preferences</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">allergens</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">date</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">meal_numbers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">number_of_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">update_menu</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">menu</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">preferences</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">allergens</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">date</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">meal_numbers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">number_of_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>,</span><span class="param">	<span class="n">weekly_cap_cents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>
@@ -483,7 +472,9 @@ the local LLM.</p>
     allergens (str): A comma-separated string of allergens to avoid
     date (str): The date string in YYYY-MM-DD format
     meal_number (List[int]): The list of meal numbers to generate (1 for breakfast, 2 for lunch, 3 for dinner). e.g. [1,2,3]
-    number_of_days (int): The number of days to generate meals for, past the {date} specified</p>
+    number_of_days (int): The number of days to generate meals for, past the {date} specified
+    weekly_cap_cents (int | None): Item-price limit per Monday–Sunday week,
+        counting all existing meals in that week. None leaves generation uncapped.</p>
 
 <p>Returns:
     str: The updated menu string</p>

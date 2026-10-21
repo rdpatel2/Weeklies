@@ -33,6 +33,15 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="variable" href="#SECRET_KEY_ENV">SECRET_KEY_ENV</a>
+            </li>
+            <li>
+                    <a class="function" href="#load_secret_key">load_secret_key</a>
+            </li>
+            <li>
+                    <a class="variable" href="#SECRET_KEY_FILE">SECRET_KEY_FILE</a>
+            </li>
+            <li>
                     <a class="variable" href="#app">app</a>
             </li>
             <li>
@@ -55,6 +64,9 @@
             </li>
             <li>
                     <a class="function" href="#build_calendar_cells">build_calendar_cells</a>
+            </li>
+            <li>
+                    <a class="variable" href="#SWAP_ERROR_MESSAGES">SWAP_ERROR_MESSAGES</a>
             </li>
             <li>
                     <a class="function" href="#index">index</a>
@@ -135,10 +147,31 @@
                     <a class="function" href="#order_receipt">order_receipt</a>
             </li>
             <li>
+                    <a class="variable" href="#DB_VIEW_HIDDEN_COLUMNS">DB_VIEW_HIDDEN_COLUMNS</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DB_VIEW_ENV">DB_VIEW_ENV</a>
+            </li>
+            <li>
+                    <a class="function" href="#env_flag">env_flag</a>
+            </li>
+            <li>
+                    <a class="function" href="#db_view_enabled">db_view_enabled</a>
+            </li>
+            <li>
+                    <a class="function" href="#inject_db_view_enabled">inject_db_view_enabled</a>
+            </li>
+            <li>
                     <a class="function" href="#db_view">db_view</a>
             </li>
             <li>
                     <a class="function" href="#generate_menu">generate_menu</a>
+            </li>
+            <li>
+                    <a class="function" href="#swap_meal">swap_meal</a>
+            </li>
+            <li>
+                    <a class="function" href="#swap_meal_options">swap_meal_options</a>
             </li>
             <li>
                     <a class="function" href="#parse_args">parse_args</a>
@@ -164,6 +197,52 @@
                 
                 
             </section>
+                <section id="SECRET_KEY_ENV">
+                    <div class="attr variable">
+            <span class="name">SECRET_KEY_ENV</span>        =
+<span class="default_value">&#39;WEEKLIES_SECRET_KEY&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SECRET_KEY_ENV"></a>
+    
+    
+
+                </section>
+                <section id="load_secret_key">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">load_secret_key</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">environ</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">key_file</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#load_secret_key"></a>
+    
+            <div class="docstring"><p>Return the session signing key.
+Args:
+    environ: Mapping to read from (defaults to os.environ; injectable for tests).
+    key_file: Optional git-ignored file used when the env var is unset. The first
+        run generates a key and saves it there; later runs and auto-reloads reuse
+        it, so local logins survive restarts with no setup.
+Returns:
+    str: WEEKLIES_SECRET_KEY if set; else the saved key; else a new random key.</p>
+</div>
+
+
+                </section>
+                <section id="SECRET_KEY_FILE">
+                    <div class="attr variable">
+            <span class="name">SECRET_KEY_FILE</span>        =
+<span class="default_value">&#39;/home/runner/work/Weeklies/Weeklies/proj2/instance/secret_key&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SECRET_KEY_FILE"></a>
+    
+    
+
+                </section>
                 <section id="app">
                     <div class="attr variable">
             <span class="name">app</span>        =
@@ -315,6 +394,19 @@ Returns:
     list: A flat list of calendar cell dicts with day number and a 'meals' list.</p>
 </div>
 
+
+                </section>
+                <section id="SWAP_ERROR_MESSAGES">
+                    <div class="attr variable">
+            <span class="name">SWAP_ERROR_MESSAGES</span>        =
+<input id="SWAP_ERROR_MESSAGES-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="SWAP_ERROR_MESSAGES-view-value"></label><span class="default_value">{&#39;invalid_slot&#39;: &#39;That meal slot is not valid.&#39;, &#39;invalid_item&#39;: &#39;Choose an item to swap in.&#39;, &#39;slot_not_found&#39;: &#39;There is no planned meal in that slot.&#39;, &#39;same_item&#39;: &#39;That item is already planned for this slot.&#39;, &#39;item_not_found&#39;: &#39;That menu item does not exist.&#39;, &#39;out_of_stock&#39;: &#39;That item is out of stock.&#39;, &#39;restaurant_unavailable&#39;: &#39;That restaurant is not currently taking orders.&#39;, &#39;restaurant_closed&#39;: &#39;That restaurant is closed at that meal time.&#39;, &#39;allergen&#39;: &#39;That item contains one of your allergens.&#39;}</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SWAP_ERROR_MESSAGES"></a>
+    
+    
 
                 </section>
                 <section id="index">
@@ -827,6 +919,84 @@ Returns:
 
 
                 </section>
+                <section id="DB_VIEW_HIDDEN_COLUMNS">
+                    <div class="attr variable">
+            <span class="name">DB_VIEW_HIDDEN_COLUMNS</span>        =
+<span class="default_value">frozenset({&#39;password_HS&#39;})</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DB_VIEW_HIDDEN_COLUMNS"></a>
+    
+    
+
+                </section>
+                <section id="DB_VIEW_ENV">
+                    <div class="attr variable">
+            <span class="name">DB_VIEW_ENV</span>        =
+<span class="default_value">&#39;WEEKLIES_ENABLE_DB_VIEW&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DB_VIEW_ENV"></a>
+    
+    
+
+                </section>
+                <section id="env_flag">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">env_flag</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span>, </span><span class="param"><span class="n">environ</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#env_flag"></a>
+    
+            <div class="docstring"><p>Read a boolean environment variable.
+Args:
+    name: Variable name.
+    environ: Mapping to read from (defaults to os.environ; injectable for tests).
+Returns:
+    bool: True for 1/true/yes/on (any case, surrounding spaces ignored), else False.</p>
+</div>
+
+
+                </section>
+                <section id="db_view_enabled">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">db_view_enabled</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#db_view_enabled"></a>
+    
+            <div class="docstring"><p>Whether /db is available: when WEEKLIES_ENABLE_DB_VIEW is set, and always under
+pytest (app.testing) so the existing viewer tests keep running.
+Returns:
+    bool: True if the viewer should be served.</p>
+</div>
+
+
+                </section>
+                <section id="inject_db_view_enabled">
+                    <div class="attr function">
+                    <div class="decorator">@app.context_processor</div>
+
+        <span class="def">def</span>
+        <span class="name">inject_db_view_enabled</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#inject_db_view_enabled"></a>
+    
+            <div class="docstring"><p>Expose db_view_enabled to templates so the nav only links to /db when it is served.</p>
+</div>
+
+
+                </section>
                 <section id="db_view">
                     <div class="attr function">
                     <div class="decorator">@app.route(&#39;/db&#39;)</div>
@@ -838,11 +1008,12 @@ Returns:
     </div>
     <a class="headerlink" href="#db_view"></a>
     
-            <div class="docstring"><p>Display a simple, paginated database table viewer.
+            <div class="docstring"><p>Display a simple, paginated database table viewer (developer tool).
 Args:
     None
 Returns:
-    Response: HTML page showing rows/columns for a selected table (requires login).</p>
+    Response: HTML page showing rows/columns for a selected table (requires login);
+    404 when the viewer is disabled.</p>
 </div>
 
 
@@ -865,11 +1036,50 @@ Returns:
 
 
                 </section>
+                <section id="swap_meal">
+                    <div class="attr function">
+                    <div class="decorator">@app.route(&#39;/menu/swap&#39;, methods=[&#39;POST&#39;])</div>
+
+        <span class="def">def</span>
+        <span class="name">swap_meal</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#swap_meal"></a>
+    
+            <div class="docstring"><p>Replace the item in one date/meal slot of the logged-in user's plan.</p>
+
+<p>Accepts JSON {"date", "meal", "itm_id"} or the same form fields. The replacement must
+be in stock, at an open restaurant that serves that meal time, and free of the
+allergens stored on the user's account. Every other slot is left unchanged.</p>
+</div>
+
+
+                </section>
+                <section id="swap_meal_options">
+                    <div class="attr function">
+                    <div class="decorator">@app.route(&#39;/menu/swap/options&#39;)</div>
+
+        <span class="def">def</span>
+        <span class="name">swap_meal_options</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#swap_meal_options"></a>
+    
+            <div class="docstring"><p>List the items that could replace one planned slot for the logged-in user.</p>
+
+<p>Query args: date (YYYY-MM-DD) and meal (1|2|3). Only items that pass the same
+availability and allergen checks as POST /menu/swap are returned.</p>
+</div>
+
+
+                </section>
                 <section id="parse_args">
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">parse_args</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span>:</span></span>
+        <span class="name">parse_args</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">argv</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span>:</span></span>
 
         
     </div>

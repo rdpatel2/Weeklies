@@ -53,6 +53,42 @@
             <li>
                     <a class="function" href="#test_track_orders_filter_status">test_track_orders_filter_status</a>
             </li>
+            <li>
+                    <a class="variable" href="#LIFECYCLE">LIFECYCLE</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_badge_per_status">test_progress_badge_per_status</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_current_step">test_progress_current_step</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_done_and_upcoming">test_progress_done_and_upcoming</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_cancelled">test_progress_cancelled</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_all_six_statuses_distinct">test_progress_all_six_statuses_distinct</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_badge_has_css">test_progress_badge_has_css</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_lowercase_status_from_db">test_progress_lowercase_status_from_db</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_unknown_status">test_progress_unknown_status</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_missing_status">test_progress_missing_status</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_status_markup_is_escaped">test_progress_status_markup_is_escaped</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_progress_numeric_status">test_progress_numeric_status</a>
+            </li>
     </ul>
 
 
@@ -184,6 +220,188 @@ queries the user's orders sorted newest-first with review-status flags.</p>
     
             <div class="docstring"><p>UC13 variant: /profile currently returns all statuses (no server-side filter),
 but response is still 200. Documents current behavior.</p>
+</div>
+
+
+                </section>
+                <section id="LIFECYCLE">
+                    <div class="attr variable">
+            <span class="name">LIFECYCLE</span>        =
+<span class="default_value">[&#39;Ordered&#39;, &#39;Accepted&#39;, &#39;Preparing&#39;, &#39;Ready&#39;, &#39;Delivered&#39;]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LIFECYCLE"></a>
+    
+    
+
+                </section>
+                <section id="test_progress_badge_per_status">
+                    <div class="attr function">
+                    <div class="decorator">@pytest.mark.parametrize(&#39;index,status&#39;, list(enumerate(LIFECYCLE)))</div>
+
+        <span class="def">def</span>
+        <span class="name">test_progress_badge_per_status</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span>, </span><span class="param"><span class="n">index</span>, </span><span class="param"><span class="n">status</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_badge_per_status"></a>
+    
+            <div class="docstring"><p>Each lifecycle status renders its own styled badge (Accepted/Ready were unstyled before).</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_current_step">
+                    <div class="attr function">
+                    <div class="decorator">@pytest.mark.parametrize(&#39;index,status&#39;, list(enumerate(LIFECYCLE)))</div>
+
+        <span class="def">def</span>
+        <span class="name">test_progress_current_step</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span>, </span><span class="param"><span class="n">index</span>, </span><span class="param"><span class="n">status</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_current_step"></a>
+    
+            <div class="docstring"><p>Exactly one step is current, and it is the order's stage.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_done_and_upcoming">
+                    <div class="attr function">
+                    <div class="decorator">@pytest.mark.parametrize(&#39;index,status&#39;, list(enumerate(LIFECYCLE)))</div>
+
+        <span class="def">def</span>
+        <span class="name">test_progress_done_and_upcoming</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span>, </span><span class="param"><span class="n">index</span>, </span><span class="param"><span class="n">status</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_done_and_upcoming"></a>
+    
+            <div class="docstring"><p>Stages before the current one are done, stages after it are upcoming.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_cancelled">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_progress_cancelled</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_cancelled"></a>
+    
+            <div class="docstring"><p>Cancelled: red badge, greyed stepper, no stage claimed as reached.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_all_six_statuses_distinct">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_progress_all_six_statuses_distinct</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_all_six_statuses_distinct"></a>
+    
+            <div class="docstring"><p>All six real statuses on one page get six different badge classes.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_badge_has_css">
+                    <div class="attr function">
+                    <div class="decorator">@pytest.mark.parametrize(&#39;key&#39;, [&#39;ordered&#39;, &#39;accepted&#39;, &#39;preparing&#39;, &#39;ready&#39;, &#39;delivered&#39;, &#39;cancelled&#39;, &#39;unknown&#39;])</div>
+
+        <span class="def">def</span>
+        <span class="name">test_progress_badge_has_css</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">key</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_badge_has_css"></a>
+    
+            <div class="docstring"><p>Every badge class the template can emit has a colour defined.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_lowercase_status_from_db">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_progress_lowercase_status_from_db</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_lowercase_status_from_db"></a>
+    
+            <div class="docstring"><p>A hand-edited lowercase value still maps to the right stage.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_unknown_status">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_progress_unknown_status</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_unknown_status"></a>
+    
+            <div class="docstring"><p>A status outside the lifecycle shows a grey badge with the raw value and no stepper.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_missing_status">
+                    <div class="attr function">
+                    <div class="decorator">@pytest.mark.parametrize(&#39;status&#39;, [None, &#39;&#39;, &#39;   &#39;])</div>
+
+        <span class="def">def</span>
+        <span class="name">test_progress_missing_status</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span>, </span><span class="param"><span class="n">status</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_missing_status"></a>
+    
+            <div class="docstring"><p>NULL/blank status renders an 'Unknown' badge instead of crashing.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_status_markup_is_escaped">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_progress_status_markup_is_escaped</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_status_markup_is_escaped"></a>
+    
+            <div class="docstring"><p>A status containing HTML is shown as text, not injected into the page.</p>
+</div>
+
+
+                </section>
+                <section id="test_progress_numeric_status">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_progress_numeric_status</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">client</span>, </span><span class="param"><span class="n">seed_user</span>, </span><span class="param"><span class="n">seed_restaurant</span>, </span><span class="param"><span class="n">temp_db_path</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_progress_numeric_status"></a>
+    
+            <div class="docstring"><p>SQLite is loosely typed: an integer in the status column still renders.</p>
 </div>
 
 
