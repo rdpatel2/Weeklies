@@ -4,7 +4,9 @@ The key used to be hard-coded as "your_secret_key_here", so anyone reading
 the repo could forge a session cookie and log in as any user.
 """
 import logging
+import os
 
+import pytest
 from flask import Flask
 from flask.sessions import SecureCookieSessionInterface
 
@@ -90,3 +92,64 @@ def test_cookie_signed_with_real_key_is_accepted(client, seed_minimal_data):
     client.set_cookie("session", _forge_session_cookie(real_key, payload))
     resp = client.get("/profile")
     assert resp.status_code == 200
+
+
+# ---- key_file: saved local key so restarts and auto-reloads keep logins ----
+
+def test_key_file_created_when_missing(tmp_path):
+    key_file = tmp_path / "instance" / "secret_key"
+    key = load_secret_key({}, key_file=str(key_file))
+    assert len(key) == 64
+    assert key_file.read_text().strip() == key
+
+
+def test_key_file_reused_on_next_start(tmp_path):
+    key_file = str(tmp_path / "secret_key")
+    assert load_secret_key({}, key_file=key_file) == load_secret_key({}, key_file=key_file)
+
+
+def test_existing_key_file_used_without_warning(tmp_path, caplog):
+    key_file = tmp_path / "secret_key"
+    key_file.write_text("  saved-key\n")
+    with caplog.at_level(logging.WARNING):
+        assert load_secret_key({}, key_file=str(key_file)) == "saved-key"
+    assert SECRET_KEY_ENV not in caplog.text
+
+
+def test_env_key_wins_over_key_file(tmp_path):
+    key_file = tmp_path / "secret_key"
+    key_file.write_text("saved-key")
+    assert load_secret_key({SECRET_KEY_ENV: "from-env"}, key_file=str(key_file)) == "from-env"
+    assert key_file.read_text() == "saved-key"  # untouched
+
+
+def test_env_key_set_does_not_create_key_file(tmp_path):
+    key_file = tmp_path / "secret_key"
+    load_secret_key({SECRET_KEY_ENV: "from-env"}, key_file=str(key_file))
+    assert not key_file.exists()
+
+
+def test_empty_key_file_is_regenerated(tmp_path):
+    key_file = tmp_path / "secret_key"
+    key_file.write_text("   \n")
+    key = load_secret_key({}, key_file=str(key_file))
+    assert len(key) == 64
+    assert key_file.read_text().strip() == key
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits")
+def test_key_file_is_owner_only(tmp_path):
+    key_file = tmp_path / "secret_key"
+    load_secret_key({}, key_file=str(key_file))
+    assert key_file.stat().st_mode & 0o777 == 0o600
+
+
+def test_unwritable_key_file_falls_back_to_random_key(tmp_path, caplog):
+    """If the key can't be saved (e.g. read-only checkout), still start with a safe key."""
+    blocker = tmp_path / "not_a_dir"
+    blocker.write_text("x")  # a file where the directory should be
+    key_file = str(blocker / "secret_key")
+    with caplog.at_level(logging.WARNING):
+        key = load_secret_key({}, key_file=key_file)
+    assert len(key) == 64 and key != OLD_HARDCODED_KEY
+    assert "random key" in caplog.text
