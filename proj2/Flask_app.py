@@ -2353,6 +2353,12 @@ def db_view_enabled() -> bool:
     return bool(app.config.get("DB_VIEW_ENABLED")) or app.testing
 
 
+@app.context_processor
+def inject_db_view_enabled():
+    """Expose db_view_enabled to templates so the nav only links to /db when it is served."""
+    return {"db_view_enabled": db_view_enabled()}
+
+
 # Database viewer route (uses helpers only)
 @app.route("/db")
 def db_view():
