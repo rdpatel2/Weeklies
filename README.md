@@ -51,6 +51,7 @@ The project demonstrates **modular backend design**, **frontend interaction**, *
 - 🥗 **Dynamic meal generation** based on user preferences, allergens, and dietary constraints
 - 🧪 **Automated test suite** with `pytest` (unit, integration, e2e) and Cypress (UI e2e)
 - 🧰 **CI/CD workflows** for tests, linting, and documentation deployment
+- 🔁 **Single-meal swaps** — replace one date/meal slot from the calendar; the server checks stock, restaurant hours, and the account's allergies, and leaves the rest of the plan untouched (`POST /menu/swap`, `GET /menu/swap/options`)
 
 ---
 
