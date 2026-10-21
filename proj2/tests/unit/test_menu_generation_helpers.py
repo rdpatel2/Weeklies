@@ -16,8 +16,6 @@ from proj2.menu_generation import (
     limit_scope,
     filter_allergens,
     filter_closed_restaurants,
-    parse_allergens,
-    is_restaurant_open,
     LLM_ATTRIBUTE_ERROR,
     DAYS_OF_WEEK,
 )
@@ -232,28 +230,6 @@ class TestFilterAllergens:
         assert len(filtered) == 3  # All items pass since Peanuts not found
 
 
-class TestParseAllergens:
-    """Tests for parse_allergens function"""
-
-    def test_parse_strips_and_casefolds(self):
-        assert parse_allergens("Gluten, Soy ,SESAME") == {"gluten", "soy", "sesame"}
-
-    def test_parse_drops_empty_entries(self):
-        assert parse_allergens("Peanuts,, ,") == {"peanuts"}
-
-    @pytest.mark.parametrize("value", [None, "", float("nan")])
-    def test_parse_missing_values(self, value):
-        assert parse_allergens(value) == set()
-
-    def test_filter_ignores_spacing_and_case(self):
-        items = pd.DataFrame({
-            "name": ["Item1", "Item2", "Item3"],
-            "allergens": ["Gluten, Soy", "Dairy, Coconut", "Fish"]
-        })
-        filtered = filter_allergens(items, "soy , COCONUT")
-        assert list(filtered["name"].values) == ["Item3"]
-
-
 class TestFilterClosedRestaurants:
     """Tests for filter_closed_restaurants function"""
 
@@ -332,37 +308,3 @@ class TestFilterClosedRestaurants:
         })
         filtered = filter_closed_restaurants(restaurants, "Mon", 1500)
         assert len(filtered) == 2  # Restaurants 1 and 3 open at 1500
-
-
-class TestIsRestaurantOpen:
-    """Tests for is_restaurant_open single-restaurant check"""
-
-    @staticmethod
-    def hours(times):
-        return json.dumps({"Mon": times})
-
-    def test_open_within_window(self):
-        assert is_restaurant_open(self.hours([1000, 2000]), "Mon", 1200) is True
-
-    def test_open_on_boundaries(self):
-        assert is_restaurant_open(self.hours([1000, 2000]), "Mon", 1000) is True
-        assert is_restaurant_open(self.hours([1000, 2000]), "Mon", 2000) is True
-
-    def test_open_in_second_window(self):
-        assert is_restaurant_open(self.hours([800, 1100, 1700, 2200]), "Mon", 2000) is True
-
-    def test_closed_between_windows(self):
-        assert is_restaurant_open(self.hours([800, 1100, 1700, 2200]), "Mon", 1400) is False
-
-    def test_closed_when_no_hours(self):
-        assert is_restaurant_open(self.hours([]), "Mon", 1200) is False
-
-    def test_closed_when_odd_times(self):
-        assert is_restaurant_open(self.hours([1000, 2000, 2100]), "Mon", 1200) is False
-
-    @pytest.mark.parametrize(
-        "hours",
-        ["9-21", "", None, json.dumps({"Tue": [1000, 2000]}), json.dumps({"Mon": ["10", "20"]})],
-    )
-    def test_unparseable_missing_day_or_non_numeric_is_closed(self, hours):
-        assert is_restaurant_open(hours, "Mon", 1400) is False

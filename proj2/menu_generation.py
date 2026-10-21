@@ -162,27 +162,19 @@ def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The filtered DataFrame with menu items containing the specified allergens removed
     """
-    prohibited = parse_allergens(allergens)
+    prohibited = {
+        value.strip().casefold() for value in (allergens or "").split(",") if value.strip()
+    }
 
     def allowed(value):
-        return not prohibited.intersection(parse_allergens(value))
+        declared = (
+            set()
+            if pd.isna(value)
+            else {tag.strip().casefold() for tag in str(value).split(",") if tag.strip()}
+        )
+        return not prohibited.intersection(declared)
 
     return menu_items.loc[menu_items["allergens"].map(allowed).astype(bool)].copy()
-
-
-def parse_allergens(allergens) -> set:
-    """
-    Normalizes a comma-separated allergen string into a set of casefolded tags
-
-    Args:
-        allergens (str | None): A comma-separated string such as "Gluten, Soy" (None/NaN allowed)
-
-    Returns:
-        set: The allergen tags, stripped and casefolded, with empty entries removed
-    """
-    if allergens is None or (not isinstance(allergens, str) and pd.isna(allergens)):
-        return set()
-    return {tag.strip().casefold() for tag in str(allergens).split(",") if tag.strip()}
 
 
 def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int) -> pd.DataFrame:
@@ -198,39 +190,28 @@ def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int)
         pd.DataFrame: The filtered DataFrame with closed restaurants removed
     """
     for index, rows in restaurant.iterrows():
-        if not is_restaurant_open(rows["hours"], weekday, time):
+        try:
+            opening_times = json.loads(rows["hours"])[weekday]
+            if not isinstance(opening_times, list) or not all(
+                isinstance(value, (int, float)) for value in opening_times
+            ):
+                raise ValueError("Invalid hours")
+        except (TypeError, ValueError, KeyError):
+            restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+            continue
+        if len(opening_times) % 2 == 1:
+            print("Odd opening times - cannot process")
+            restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+        elif len(opening_times) >= 2:
+            open = False
+            for x in range(int(len(opening_times) / 2)):
+                if opening_times[x * 2] <= time and opening_times[x * 2 + 1] >= time:
+                    open = True
+            if not open:
+                restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+        else:
             restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
     return restaurant
-
-
-def is_restaurant_open(hours: str, weekday: str, time: int) -> bool:
-    """
-    Checks whether one restaurant's stored hours JSON has it open at the specified weekday and time
-
-    Args:
-        hours (str): The restaurant hours JSON, e.g. '{"Mon": [1100, 2200], ...}'
-        weekday (str): The day of the week to check (e.g., "Mon", "Tue", etc.)
-        time (int): The time to check in HHMM format (24H time)
-
-    Returns:
-        bool: True if any open/close window contains the time; False if closed, or if the
-            hours are unparseable, missing the weekday, non-numeric, or an odd-length list
-    """
-    try:
-        opening_times = json.loads(hours)[weekday]
-        if not isinstance(opening_times, list) or not all(
-            isinstance(value, (int, float)) for value in opening_times
-        ):
-            raise ValueError("Invalid hours")
-    except (TypeError, ValueError, KeyError):
-        return False
-    if len(opening_times) % 2 == 1:
-        print("Odd opening times - cannot process")
-        return False
-    for x in range(len(opening_times) // 2):
-        if opening_times[x * 2] <= time and opening_times[x * 2 + 1] >= time:
-            return True
-    return False
 
 
 class MenuGenerator:
