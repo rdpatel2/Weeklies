@@ -8,14 +8,12 @@ Flask_app.parse_generated_menu.
 """
 
 import datetime
+import json
 import re
 
-from proj2.menu_generation import (
-    DAYS_OF_WEEK,
-    get_meal_and_order_time,
-    is_restaurant_open,
-    parse_allergens,
-)
+import pandas as pd
+
+from proj2.menu_generation import DAYS_OF_WEEK, get_meal_and_order_time
 from proj2.sqlQueries import fetch_all, fetch_one
 
 ## Matches one menu entry; the meal number is optional for legacy entries
@@ -80,6 +78,52 @@ def replace_menu_slot(menu: str, date: str, meal: int, new_itm_id: int) -> str:
     if not found:
         raise SlotNotFoundError(f"No planned meal {meal} on {date}")
     return updated
+
+
+def parse_allergens(allergens) -> set:
+    """
+    Normalizes a comma-separated allergen string into a set of casefolded tags.
+    Follows the same rules as menu_generation.filter_allergens.
+
+    Args:
+        allergens (str | None): A comma-separated string such as "Gluten, Soy" (None/NaN allowed)
+
+    Returns:
+        set: The allergen tags, stripped and casefolded, with empty entries removed
+    """
+    if allergens is None or (not isinstance(allergens, str) and pd.isna(allergens)):
+        return set()
+    return {tag.strip().casefold() for tag in str(allergens).split(",") if tag.strip()}
+
+
+def is_restaurant_open(hours: str, weekday: str, time: int) -> bool:
+    """
+    Checks whether one restaurant's stored hours JSON has it open at the specified weekday and time.
+    Follows the same rules as menu_generation.filter_closed_restaurants.
+
+    Args:
+        hours (str): The restaurant hours JSON, e.g. '{"Mon": [1100, 2200], ...}'
+        weekday (str): The day of the week to check (e.g., "Mon", "Tue", etc.)
+        time (int): The time to check in HHMM format (24H time)
+
+    Returns:
+        bool: True if any open/close window contains the time; False if closed, or if the
+            hours are unparseable, missing the weekday, non-numeric, or an odd-length list
+    """
+    try:
+        opening_times = json.loads(hours)[weekday]
+        if not isinstance(opening_times, list) or not all(
+            isinstance(value, (int, float)) for value in opening_times
+        ):
+            raise ValueError("Invalid hours")
+    except (TypeError, ValueError, KeyError):
+        return False
+    if len(opening_times) % 2 == 1:
+        return False
+    for x in range(len(opening_times) // 2):
+        if opening_times[x * 2] <= time and opening_times[x * 2 + 1] >= time:
+            return True
+    return False
 
 
 ## Columns loaded for a swap candidate; keys of the dicts returned by load_swap_item
