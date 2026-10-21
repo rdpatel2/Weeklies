@@ -18,7 +18,7 @@
 [![Contributors](https://img.shields.io/github/contributors/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/graphs/contributors)
 [![DOI](https://zenodo.org/badge/1351756287.svg)](https://doi.org/10.5281/zenodo.23535676)
 
-> 🎬 **Teaser Video (30s)**: [Quick Feature Teaser Video](https://youtu.be/mHaZZrCgCAQ) · **Full Demo (3m)**: [Feature Walk-Through Video](docs/media/walkthrough.mp4)
+> 🎬 **Teaser Video (30s)**: [Quick Feature Teaser Video](https://youtu.be/mHaZZrCgCAQ) · **Full Demo (3m)**: [Feature Walk-Through Video](https://youtu.be/7xUXqdqDwcs)
 
 ---
 
@@ -178,7 +178,7 @@ Setup, environment creation, and execution instructions have been moved to a ded
 - ⚡ **Teaser Video (30s)**: High-level visual tour of intelligent meal planning, allergen filters, and calendar interactions.  
   ➡️ **[Watch Teaser Video](https://youtu.be/mHaZZrCgCAQ)**
 - 🔍 **Feature Walk-Through Video (3m)**: Detailed demonstration covering single-meal swaps (UC29), budget caps, order lifecycle tracking (UC13), and Cypress E2E test execution.  
-  ➡️ **[Watch Feature Walk-Through](docs/media/walkthrough.mp4)**
+  ➡️ **[Watch Feature Walk-Through](https://youtu.be/7xUXqdqDwcs)**
 
 ---
 
