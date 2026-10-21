@@ -55,6 +55,18 @@ The project demonstrates **modular backend design**, **frontend interaction**, *
 
 ---
 
+## 🎯 Milestones & Project 3 Roadmap
+
+Weeklies delivers **5 completed milestones** for Project 2 and an architectural roadmap for Project 3:
+- **[M0: Risk-Killer Eval](./docs/m0.md)** — Runnable hypothesis evaluation instrument with synthetic simulation and CI reporting.
+- **[M1: Dynamic Single-Meal Swaps](./docs/milestones.md#milestone-1-m1-dynamic-single-meal-swaps-uc29)** — Calendar slot replacement with allergen and operating-hours checks.
+- **[M2: Budget-Aware Plan Generation](./docs/milestones.md#milestone-2-m2-budget-constrained-meal-plan-generation)** — Exact-cents budget caps, candidate ranking, and weekly totals.
+- **[M3: Order Progress Stepper](./docs/milestones.md#milestone-3-m3-order-lifecycle--visual-progress-stepper-uc13)** — 5-stage visual lifecycle tracker on `/profile`.
+- **[M4: Cypress E2E UI Test Harness](./docs/milestones.md#milestone-4-m4-comprehensive-cypress-e2e-ui-test-harness)** — Automated browser E2E test suite running 17 specs in CI.
+- ➡️ **[See Full Milestones & Project 3 Roadmap →](./docs/milestones.md)**
+
+---
+
 ## 🧱 Architecture
 
 ```
