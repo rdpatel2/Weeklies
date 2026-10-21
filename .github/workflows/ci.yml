@@ -85,9 +85,27 @@ jobs:
           pip install pytest pytest-cov black ruff --no-cache-dir
 
       - name: Run tests with coverage
-        working-directory: proj2
         run: |
-          pytest --tb=short -v --cov=. --cov-report=xml --cov-report=term-missing
+          python -m pytest --tb=short -v
+
+      - name: Upload backend coverage report
+        if: ${{ !cancelled() && hashFiles('coverage.xml') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: coverage.xml
+          if-no-files-found: error
+
+      - name: Upload backend coverage to Codecov
+        if: ${{ !cancelled() && hashFiles('coverage.xml') != '' }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          disable_search: true
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
 
       - name: Check code formatting (Black)
         working-directory: proj2
@@ -100,15 +118,6 @@ jobs:
         continue-on-error: true
         run: |
           ruff check .
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./proj2/coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
 
       - name: Generate test badge
         if: always() && env.HAS_GIST_TOKEN == 'true'

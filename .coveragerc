@@ -7,6 +7,8 @@ omit =
     */.venv/*
     */.pytest_cache/*
     */tests/*
+    */sef26tests/*
+    */scripts/*
     */config/*
     */docs/*
     */templates/*
