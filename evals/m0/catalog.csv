@@ -1,0 +1,17 @@
+item_id,name,cuisine,price_cents,allergens,vegetarian
+1,Garden bowl,Mediterranean,795,,true
+2,Lentil stew,Indian,895,,true
+3,Vegetable stir fry,Asian,995,wheat,true
+4,Bean burrito,Mexican,895,wheat,true
+5,Chicken rice,Mexican,1095,,false
+6,Tofu curry,Indian,1195,soy,true
+7,Pasta primavera,Italian,1295,"wheat,milk",true
+8,Salmon plate,Mediterranean,1695,fish,false
+9,Chicken salad,Mediterranean,1195,,false
+10,Peanut noodles,Asian,1095,"peanuts,wheat",true
+11,Vegetable pizza,Italian,1495,"wheat,milk",true
+12,Beef burger,American,1595,"wheat,milk",false
+13,Hummus plate,Mediterranean,895,,true
+14,Chicken curry,Indian,1395,milk,false
+15,Rice and tofu,Asian,995,soy,true
+16,Mushroom risotto,Italian,1395,milk,true
