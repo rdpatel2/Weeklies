@@ -60,6 +60,8 @@ proj2/CSC510_DB.db
 .env
 .env.*
 !.env.example
+# Flask instance folder: holds the auto-generated local secret key
+/instance/
 
 # CI outputs / temporary files
 coverage.xml

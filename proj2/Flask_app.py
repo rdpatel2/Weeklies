@@ -41,29 +41,61 @@ from proj2.sqlQueries import (
 SECRET_KEY_ENV = "WEEKLIES_SECRET_KEY"
 
 
-def load_secret_key(environ=None) -> str:
+def _read_key_file(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return fh.read().strip()
+    except OSError:
+        return ""
+
+
+def _write_key_file(path, key) -> bool:
+    """Create the key file readable only by the owner. Returns False if it can't be written."""
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(key + "\n")
+        return True
+    except OSError:
+        return False
+
+
+def load_secret_key(environ=None, key_file=None) -> str:
     """
-    Return the session signing key from the environment, or a random per-process key.
+    Return the session signing key.
     Args:
         environ: Mapping to read from (defaults to os.environ; injectable for tests).
+        key_file: Optional git-ignored file used when the env var is unset. The first
+            run generates a key and saves it there; later runs and auto-reloads reuse
+            it, so local logins survive restarts with no setup.
     Returns:
-        str: The configured key, or a fresh random key if none is set.
+        str: WEEKLIES_SECRET_KEY if set; else the saved key; else a new random key.
     """
     environ = os.environ if environ is None else environ
     key = (environ.get(SECRET_KEY_ENV) or "").strip()
     if key:
         return key
     # A key committed to the repo lets anyone forge session cookies, so never
-    # fall back to a fixed string. A random key is safe; sessions just reset on restart.
-    logging.getLogger(__name__).warning(
+    # fall back to a fixed string.
+    log = logging.getLogger(__name__)
+    if key_file:
+        saved = _read_key_file(key_file)
+        if saved:
+            return saved
+        key = secrets.token_hex(32)
+        if _write_key_file(key_file, key):
+            log.warning("%s is not set; generated a local key in %s.", SECRET_KEY_ENV, key_file)
+            return key
+    log.warning(
         "%s is not set; using a random key, so logins reset when the server restarts.",
         SECRET_KEY_ENV,
     )
-    return secrets.token_hex(32)
+    return key or secrets.token_hex(32)
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = load_secret_key()
+app.config["SECRET_KEY"] = load_secret_key(key_file=os.path.join(app.instance_path, "secret_key"))
 
 db_file = os.path.join(os.path.dirname(__file__), "CSC510_DB.db")
 
