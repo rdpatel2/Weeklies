@@ -199,6 +199,8 @@ jobs:
         env:
           FLASK_APP: Flask_app.py
           PYTHONPATH: .
+          # /db is off by default; navigation/smoke.cy.js still exercises it.
+          WEEKLIES_ENABLE_DB_VIEW: "1"
 
       - name: Upload Cypress screenshots on failure
         uses: actions/upload-artifact@v4
