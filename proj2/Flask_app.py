@@ -2322,16 +2322,50 @@ def _quote_ident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
+# The database viewer is a developer tool: it shows every user's email and phone,
+# so it is off unless explicitly enabled (team decision, option A on the /db issue).
+DB_VIEW_ENV = "WEEKLIES_ENABLE_DB_VIEW"
+
+
+def env_flag(name, environ=None) -> bool:
+    """
+    Read a boolean environment variable.
+    Args:
+        name: Variable name.
+        environ: Mapping to read from (defaults to os.environ; injectable for tests).
+    Returns:
+        bool: True for 1/true/yes/on (any case, surrounding spaces ignored), else False.
+    """
+    environ = os.environ if environ is None else environ
+    return (environ.get(name) or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+app.config["DB_VIEW_ENABLED"] = env_flag(DB_VIEW_ENV)
+
+
+def db_view_enabled() -> bool:
+    """
+    Whether /db is available: when WEEKLIES_ENABLE_DB_VIEW is set, and always under
+    pytest (app.testing) so the existing viewer tests keep running.
+    Returns:
+        bool: True if the viewer should be served.
+    """
+    return bool(app.config.get("DB_VIEW_ENABLED")) or app.testing
+
+
 # Database viewer route (uses helpers only)
 @app.route("/db")
 def db_view():
     """
-    Display a simple, paginated database table viewer.
+    Display a simple, paginated database table viewer (developer tool).
     Args:
         None
     Returns:
-        Response: HTML page showing rows/columns for a selected table (requires login).
+        Response: HTML page showing rows/columns for a selected table (requires login);
+        404 when the viewer is disabled.
     """
+    if not db_view_enabled():
+        abort(404)
     if session.get("Username") is None:
         return redirect(url_for("login"))
 
