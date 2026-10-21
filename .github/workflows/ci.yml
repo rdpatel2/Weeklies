@@ -172,7 +172,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Install Python dependencies
         working-directory: proj2
@@ -189,11 +189,12 @@ jobs:
         run: python scripts/cypress_seed.py
 
       - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: proj2
           start: python -m flask run --port 5000
           wait-on: "http://127.0.0.1:5000"
+          wait-on-timeout: 120
           config: baseUrl=http://127.0.0.1:5000
         env:
           FLASK_APP: Flask_app.py
