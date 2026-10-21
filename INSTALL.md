@@ -44,17 +44,17 @@ pip install -r proj2/requirements.txt
 ## 🚀 Usage
 
 ### Configuration
-The app reads its settings from environment variables. `flask run` loads them from a `.env` file in the repo root, which git ignores:
+No configuration is needed for local development. The app reads optional settings from environment variables, which `flask run` loads from a git-ignored `.env` file in the repo root:
 
 ```bash
 cp .env.example .env
-# then set WEEKLIES_SECRET_KEY in .env to the output of:
+# on a shared server, set WEEKLIES_SECRET_KEY in .env to the output of:
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
 | Variable | Purpose | If unset |
 |---|---|---|
-| `WEEKLIES_SECRET_KEY` | Signs session cookies. Never commit a real value. | A random key is generated at startup, so logins reset whenever the server restarts. |
+| `WEEKLIES_SECRET_KEY` | Signs session cookies. Never commit a real value. | On first run the app generates a key and saves it to `instance/secret_key` (git-ignored), then reuses it, so logins survive restarts and auto-reloads. Delete that file to log everyone out. |
 | `FLASK_DEBUG` | `1` enables auto-reload and the interactive debugger for local development. | Debug is off. |
 
 When starting the app directly with `python -m proj2.Flask_app`, debug mode is off unless you pass `--debug`. Never enable it on a server others can reach: the debugger lets anyone who sees an error page run code on the machine.
