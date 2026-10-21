@@ -18,6 +18,7 @@ from proj2.order_progress import order_progress
 from proj2.meal_swap import (
     SlotNotFoundError,
     find_slot_item,
+    list_swap_options,
     load_swap_item,
     replace_menu_slot,
     slot_weekday_and_time,
@@ -2565,6 +2566,63 @@ def swap_meal():
         )
     year, month, _ = slot_date.split("-")
     return redirect(url_for("index", year=int(year), month=int(month), swapped=1))
+
+
+@app.route("/menu/swap/options")
+def swap_meal_options():
+    """
+    List the items that could replace one planned slot for the logged-in user.
+
+    Query args: date (YYYY-MM-DD) and meal (1|2|3). Only items that pass the same
+    availability and allergen checks as POST /menu/swap are returned.
+    """
+    if session.get("Username") is None:
+        return jsonify({"ok": False, "error": "login_required"}), 401
+
+    slot_date = (request.args.get("date") or "").strip()
+    try:
+        meal = int(request.args.get("meal"))
+        slot_weekday_and_time(slot_date, meal)
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "invalid_slot"}), 400
+
+    conn = create_connection(db_file)
+    try:
+        user = fetch_one(
+            conn,
+            'SELECT allergies, generated_menu FROM "User" WHERE email = ?',
+            (session.get("Email"),),
+        )
+        if not user:
+            return jsonify({"ok": False, "error": "login_required"}), 401
+        current_itm_id = find_slot_item(user[1] or "", slot_date, meal)
+        if current_itm_id is None:
+            return jsonify({"ok": False, "error": "slot_not_found"}), 404
+        eligible = list_swap_options(conn, user[0] or "", slot_date, meal, current_itm_id)
+    finally:
+        close_connection(conn)
+
+    details = fetch_menu_items_by_ids([o["itm_id"] for o in eligible])
+    options = [
+        {
+            "itm_id": o["itm_id"],
+            "name": o["name"],
+            "restaurant_name": details.get(o["itm_id"], {}).get("restaurant_name", ""),
+            "price": details.get(o["itm_id"], {}).get("price"),
+            "calories": details.get(o["itm_id"], {}).get("calories"),
+            "allergens": o["allergens"] or "",
+        }
+        for o in eligible
+    ]
+    return jsonify(
+        {
+            "ok": True,
+            "date": slot_date,
+            "meal": meal,
+            "current_itm_id": current_itm_id,
+            "options": options,
+        }
+    )
 
 
 def parse_args() -> argparse.Namespace:
