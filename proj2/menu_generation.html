@@ -78,10 +78,19 @@
                     <a class="function" href="#limit_scope">limit_scope</a>
             </li>
             <li>
+                    <a class="function" href="#parse_allergens">parse_allergens</a>
+            </li>
+            <li>
                     <a class="function" href="#filter_allergens">filter_allergens</a>
             </li>
             <li>
                     <a class="function" href="#filter_closed_restaurants">filter_closed_restaurants</a>
+            </li>
+            <li>
+                    <a class="function" href="#is_open_at">is_open_at</a>
+            </li>
+            <li>
+                    <a class="function" href="#is_restaurant_open">is_restaurant_open</a>
             </li>
             <li>
                     <a class="class" href="#MenuGenerator">MenuGenerator</a>
@@ -355,6 +364,27 @@
 
 
                 </section>
+                <section id="parse_allergens">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">parse_allergens</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">allergens</span></span><span class="return-annotation">) -> <span class="nb">set</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#parse_allergens"></a>
+    
+            <div class="docstring"><p>Normalizes a comma-separated allergen string into a set of lowercase tokens</p>
+
+<p>Args:
+    allergens (str | None): A comma-separated string such as "Gluten, Soy" (None/NaN allowed)</p>
+
+<p>Returns:
+    set: The set of allergen names, stripped and lowercased, with empty entries removed</p>
+</div>
+
+
+                </section>
                 <section id="filter_allergens">
                     <div class="attr function">
             
@@ -396,6 +426,51 @@
 
 <p>Returns:
     pd.DataFrame: The filtered DataFrame with closed restaurants removed</p>
+</div>
+
+
+                </section>
+                <section id="is_open_at">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">is_open_at</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">opening_times</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>, </span><span class="param"><span class="n">time</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#is_open_at"></a>
+    
+            <div class="docstring"><p>Checks whether a single day's opening times cover the specified time</p>
+
+<p>Args:
+    opening_times (List[int]): Flat list of [open, close, open, close, ...] times in HHMM format
+    time (int): The time to check in HHMM format (24H time)</p>
+
+<p>Returns:
+    bool: True if any open/close window contains the time; False if closed or the list is malformed</p>
+</div>
+
+
+                </section>
+                <section id="is_restaurant_open">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">is_restaurant_open</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">hours</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">weekday</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">time</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#is_restaurant_open"></a>
+    
+            <div class="docstring"><p>Checks whether a restaurant's stored hours JSON has it open at the specified weekday and time</p>
+
+<p>Args:
+    hours (str): The restaurant hours JSON, e.g. '{"Mon": [1100, 2200], ...}'
+    weekday (str): The day of the week to check (e.g., "Mon", "Tue", etc.)
+    time (int): The time to check in HHMM format (24H time)</p>
+
+<p>Returns:
+    bool: True if open; False if closed or the hours cannot be parsed</p>
 </div>
 
 
