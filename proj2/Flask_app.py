@@ -2313,6 +2313,15 @@ def order_receipt(ord_id: int):
     )
 
 
+# Columns the database viewer never selects. Password hashes can be cracked offline,
+# so they must not reach the page (User and Restaurant both have password_HS).
+DB_VIEW_HIDDEN_COLUMNS = frozenset({"password_HS"})
+
+
+def _quote_ident(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
 # Database viewer route (uses helpers only)
 @app.route("/db")
 def db_view():
@@ -2348,9 +2357,16 @@ def db_view():
         offset = (page - 1) * per_page
 
         col_rows = fetch_all(conn, f'PRAGMA table_info("{table}")')
-        columns = [r[1] for r in col_rows] if col_rows else []
+        columns = [r[1] for r in col_rows or [] if r[1] not in DB_VIEW_HIDDEN_COLUMNS]
 
-        rows = fetch_all(conn, f'SELECT * FROM "{table}" LIMIT ? OFFSET ?', (per_page, offset))
+        # Select only the visible columns, so hidden values never leave the database.
+        if columns:
+            select_list = ", ".join(_quote_ident(c) for c in columns)
+            rows = fetch_all(
+                conn, f'SELECT {select_list} FROM "{table}" LIMIT ? OFFSET ?', (per_page, offset)
+            )
+        else:
+            rows = []
     finally:
         close_connection(conn)
 
