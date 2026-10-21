@@ -1,0 +1,207 @@
+{
+  "interpretation": "Fictional sensitivity check, not evidence of user benefit; all five consecutive seeds retained.",
+  "passes": 1,
+  "runs": [
+    {
+      "budget_lift_percentage_points": 20.0,
+      "budget_success_rate": {
+        "baseline": 0.7,
+        "weeklies": 0.9
+      },
+      "checks": {
+        "baseline_completion": true,
+        "budget_lift": true,
+        "enough_pairs": true,
+        "median_reduction": false,
+        "weeklies_budget_success": true,
+        "weeklies_completion": true
+      },
+      "completion_rate": {
+        "baseline": 0.9,
+        "weeklies": 1.0
+      },
+      "data_kind": "synthetic",
+      "input_sha256": "d37a3da74d8ad69a9ff5442a66b6aba2e9d0b1b7c8509a49e44189df1b1474dc",
+      "interpretation": "Synthetic instrument demonstration; no real-user benefit established.",
+      "median_reduction": 0.24668435264476146,
+      "median_seconds": {
+        "baseline": 850.735,
+        "weeklies": 623.6949999999999
+      },
+      "policy": {
+        "minimum_budget_lift_percentage_points": 20,
+        "minimum_budget_success_rate": 0.8,
+        "minimum_completion_rate": 0.8,
+        "minimum_median_reduction": 0.3,
+        "minimum_pairs": 5,
+        "target_meals": 7,
+        "timeout_seconds": 1200,
+        "version": "m0-time-budget-v2"
+      },
+      "sample_size": 10,
+      "seed": 510,
+      "verdict": "FAIL"
+    },
+    {
+      "budget_lift_percentage_points": 30.0,
+      "budget_success_rate": {
+        "baseline": 0.3,
+        "weeklies": 0.6
+      },
+      "checks": {
+        "baseline_completion": true,
+        "budget_lift": true,
+        "enough_pairs": true,
+        "median_reduction": false,
+        "weeklies_budget_success": false,
+        "weeklies_completion": true
+      },
+      "completion_rate": {
+        "baseline": 0.8,
+        "weeklies": 0.9
+      },
+      "data_kind": "synthetic",
+      "input_sha256": "f3a5caf73e005aa76e853cd4396d3229d529548b66cc467042de6a26b63fab91",
+      "interpretation": "Synthetic instrument demonstration; no real-user benefit established.",
+      "median_reduction": 0.1278229655434348,
+      "median_seconds": {
+        "baseline": 780.875,
+        "weeklies": 751.565
+      },
+      "policy": {
+        "minimum_budget_lift_percentage_points": 20,
+        "minimum_budget_success_rate": 0.8,
+        "minimum_completion_rate": 0.8,
+        "minimum_median_reduction": 0.3,
+        "minimum_pairs": 5,
+        "target_meals": 7,
+        "timeout_seconds": 1200,
+        "version": "m0-time-budget-v2"
+      },
+      "sample_size": 10,
+      "seed": 511,
+      "verdict": "FAIL"
+    },
+    {
+      "budget_lift_percentage_points": 30.0,
+      "budget_success_rate": {
+        "baseline": 0.5,
+        "weeklies": 0.8
+      },
+      "checks": {
+        "baseline_completion": false,
+        "budget_lift": true,
+        "enough_pairs": true,
+        "median_reduction": true,
+        "weeklies_budget_success": true,
+        "weeklies_completion": true
+      },
+      "completion_rate": {
+        "baseline": 0.5,
+        "weeklies": 1.0
+      },
+      "data_kind": "synthetic",
+      "input_sha256": "61c49f2863b7b22be7c63b4980815d378daff6fcff24788c6ec301e64cc31910",
+      "interpretation": "Synthetic instrument demonstration; no real-user benefit established.",
+      "median_reduction": 0.4254482976050669,
+      "median_seconds": {
+        "baseline": 1097.98,
+        "weeklies": 555.735
+      },
+      "policy": {
+        "minimum_budget_lift_percentage_points": 20,
+        "minimum_budget_success_rate": 0.8,
+        "minimum_completion_rate": 0.8,
+        "minimum_median_reduction": 0.3,
+        "minimum_pairs": 5,
+        "target_meals": 7,
+        "timeout_seconds": 1200,
+        "version": "m0-time-budget-v2"
+      },
+      "sample_size": 10,
+      "seed": 512,
+      "verdict": "FAIL"
+    },
+    {
+      "budget_lift_percentage_points": 20.0,
+      "budget_success_rate": {
+        "baseline": 0.6,
+        "weeklies": 0.8
+      },
+      "checks": {
+        "baseline_completion": true,
+        "budget_lift": true,
+        "enough_pairs": true,
+        "median_reduction": true,
+        "weeklies_budget_success": true,
+        "weeklies_completion": true
+      },
+      "completion_rate": {
+        "baseline": 0.8,
+        "weeklies": 1.0
+      },
+      "data_kind": "synthetic",
+      "input_sha256": "2c012f5a7b4a4db0c4c538aab077e813adf8095503607c393d66731274b327b1",
+      "interpretation": "Synthetic instrument demonstration; no real-user benefit established.",
+      "median_reduction": 0.402766105438162,
+      "median_seconds": {
+        "baseline": 984.26,
+        "weeklies": 534.185
+      },
+      "policy": {
+        "minimum_budget_lift_percentage_points": 20,
+        "minimum_budget_success_rate": 0.8,
+        "minimum_completion_rate": 0.8,
+        "minimum_median_reduction": 0.3,
+        "minimum_pairs": 5,
+        "target_meals": 7,
+        "timeout_seconds": 1200,
+        "version": "m0-time-budget-v2"
+      },
+      "sample_size": 10,
+      "seed": 513,
+      "verdict": "PASS"
+    },
+    {
+      "budget_lift_percentage_points": 30.0,
+      "budget_success_rate": {
+        "baseline": 0.3,
+        "weeklies": 0.6
+      },
+      "checks": {
+        "baseline_completion": false,
+        "budget_lift": true,
+        "enough_pairs": true,
+        "median_reduction": true,
+        "weeklies_budget_success": false,
+        "weeklies_completion": true
+      },
+      "completion_rate": {
+        "baseline": 0.5,
+        "weeklies": 0.8
+      },
+      "data_kind": "synthetic",
+      "input_sha256": "b615f973106b6b8403a16ec6f240affff5ba582aae69da28715e7c17a2d61352",
+      "interpretation": "Synthetic instrument demonstration; no real-user benefit established.",
+      "median_reduction": 0.38106556475292996,
+      "median_seconds": {
+        "baseline": 1077.965,
+        "weeklies": 529.77
+      },
+      "policy": {
+        "minimum_budget_lift_percentage_points": 20,
+        "minimum_budget_success_rate": 0.8,
+        "minimum_completion_rate": 0.8,
+        "minimum_median_reduction": 0.3,
+        "minimum_pairs": 5,
+        "target_meals": 7,
+        "timeout_seconds": 1200,
+        "version": "m0-time-budget-v2"
+      },
+      "sample_size": 10,
+      "seed": 514,
+      "verdict": "FAIL"
+    }
+  ],
+  "version": "seeded-planning-v1"
+}

@@ -1,8 +1,21 @@
 """Additional tests to improve Flask_app.py coverage."""
 import pytest
 import json
-from proj2.Flask_app import app, db_file, _money, _cents_to_dollars
+import proj2.Flask_app as Flask_app
+import os
+from proj2.Flask_app import app, _money, _cents_to_dollars
 from proj2.sqlQueries import create_connection, close_connection, execute_query, fetch_one, fetch_all
+
+
+class _DbFileProxy(os.PathLike):
+    def __fspath__(self):
+        return str(Flask_app.db_file)
+
+    def __str__(self):
+        return str(Flask_app.db_file)
+
+
+db_file = _DbFileProxy()
 
 
 @pytest.fixture
@@ -244,9 +257,9 @@ class TestPdfGeneration:
 class TestSqlQueries:
     """Tests for SQL query functions."""
 
-    def test_fetch_functions_with_valid_database(self):
+    def test_fetch_functions_with_valid_database(self, app):
         """Test fetch functions work with valid database."""
-        conn = create_connection(db_file)
+        conn = create_connection(Flask_app.db_file)
         assert conn is not None
         
         try:
@@ -259,9 +272,9 @@ class TestSqlQueries:
         except Exception:
             pytest.fail("SQL operations failed unexpectedly")
 
-    def test_execute_query_with_valid_sql(self):
+    def test_execute_query_with_valid_sql(self, app):
         """Test execute_query with valid SQL."""
-        conn = create_connection(db_file)
+        conn = create_connection(Flask_app.db_file)
         assert conn is not None
         
         try:
