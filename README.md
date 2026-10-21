@@ -11,6 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](pyproject.toml)
 [![Lint: ruff](https://img.shields.io/badge/lint-ruff-46a2f1?logo=ruff&logoColor=white)](pyproject.toml)
+[![Syntax: ruff](https://img.shields.io/badge/syntax-ruff-46a2f1?logo=ruff&logoColor=white)](pyproject.toml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/commits)
 [![GitHub issues](https://img.shields.io/github/issues/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/pulls)
