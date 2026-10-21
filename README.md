@@ -1,22 +1,23 @@
 
 # 🍽️ WEEKLIES — Intelligent Meal Planning and Delivery System
 
-[![CI](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
-[![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)]()
-![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rdpatel2/6d51e7a5086ac9b427e43f47f5d7d29e/raw/tests-badge.json&cacheSeconds=0)
-[![codecov](https://codecov.io/gh/rdpatel2/Weeklies/branch/main/graph/badge.svg)](https://codecov.io/gh/rdpatel2/Weeklies)
+[![CI](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml/badge.svg)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-466%20passing-brightgreen.svg)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen.svg)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
+[![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg)](https://rdpatel2.github.io/Weeklies/)
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-blue.svg)](INSTALL.md)
 [![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Cypress](https://img.shields.io/badge/cypress-tested-brightgreen?logo=cypress&logoColor=white)](https://www.cypress.io/)
-[![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](pyproject.toml)
+[![Lint: ruff](https://img.shields.io/badge/lint-ruff-46a2f1?logo=ruff&logoColor=white)](pyproject.toml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/commits)
 [![GitHub issues](https://img.shields.io/github/issues/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/pulls)
-[![Repo Size](https://img.shields.io/github/repo-size/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies)
 [![Contributors](https://img.shields.io/github/contributors/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/graphs/contributors)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Lint: ruff](https://img.shields.io/badge/lint-ruff-46a2f1?logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
 [![DOI](https://zenodo.org/badge/1351756287.svg)](https://doi.org/10.5281/zenodo.23535676)
+
+> 🎬 **Teaser Video (30s)**: [Quick Feature Teaser Video](docs/media/teaser.mp4) · **Full Demo (3m)**: [Feature Walk-Through Video](docs/media/walkthrough.mp4)
 
 ---
 
@@ -167,6 +168,15 @@ You can view it online (via GitHub Pages) or build it locally:
 
 Setup, environment creation, and execution instructions have been moved to a dedicated guide:  
 ➡️ **[See Installation Guide →](./INSTALL.md)**
+
+---
+
+## 📹 Project Demonstration Videos
+
+- ⚡ **Teaser Video (30s)**: High-level visual tour of intelligent meal planning, allergen filters, and calendar interactions.  
+  ➡️ **[Watch Teaser Video](docs/media/teaser.mp4)**
+- 🔍 **Feature Walk-Through Video (3m)**: Detailed demonstration covering single-meal swaps (UC29), budget caps, order lifecycle tracking (UC13), and Cypress E2E test execution.  
+  ➡️ **[Watch Feature Walk-Through](docs/media/walkthrough.mp4)**
 
 ---
 
