@@ -164,12 +164,14 @@ This catalog was derived from the behavior implemented in the Weeklies repositor
 |---|---|
 | **Name** | Track order history |
 | **Primary actor** | Signed-in customer |
-| **Stakeholders & interests** | Customer—wants current status, item details, charges, and relevant follow-up actions. Restaurant—wants its status updates reflected accurately. |
+| **Stakeholders & interests** | Customer—wants current status, how far the order has progressed and what remains, item details, charges, and relevant follow-up actions. Restaurant—wants its status updates reflected accurately. |
 | **Preconditions** | The customer is signed in. |
 | **Trigger** | The customer opens their profile. |
-| **Main success scenario** | 1. Weeklies retrieves orders owned by the customer.<br>2. Weeklies interprets each order's item, charge, scheduling, and fulfillment details.<br>3. Weeklies orders the history with newest orders first.<br>4. Weeklies shows each order's restaurant, contents, total, and current status.<br>5. Weeklies presents the actions appropriate to each order. |
-| **Extensions** | 1a. The customer has no orders → Weeklies shows an empty order history.<br>2a. An order contains malformed details → Weeklies shows safe fallback values for that order.<br>4a. An order references unavailable restaurant information → Weeklies displays the remaining order information.<br>5a. A delivered order has no review → Weeklies offers review submission.<br>5b. A delivered order already has a review → Weeklies offers review viewing. |
+| **Main success scenario** | 1. Weeklies retrieves orders owned by the customer.<br>2. Weeklies interprets each order's item, charge, scheduling, and fulfillment details.<br>3. Weeklies orders the history with newest orders first.<br>4. Weeklies shows each order's restaurant, contents, total, and current status, with its progress through the lifecycle (Ordered → Accepted → Preparing → Ready → Delivered): stages reached, the current stage, and stages still to come.<br>5. Weeklies presents the actions appropriate to each order. |
+| **Extensions** | 1a. The customer has no orders → Weeklies shows an empty order history.<br>2a. An order contains malformed details → Weeklies shows safe fallback values for that order.<br>4a. An order references unavailable restaurant information → Weeklies displays the remaining order information.<br>4b. An order is cancelled → Weeklies marks it cancelled and shows the lifecycle as not completed, without claiming which stages were reached.<br>4c. An order's status is missing or outside the known lifecycle → Weeklies shows the stored value (or "Unknown") without a progress position and still displays the rest of the history.<br>5a. A delivered order has no review → Weeklies offers review submission.<br>5b. A delivered order already has a review → Weeklies offers review viewing. |
 | **Postconditions** | The customer has seen the latest stored state of all owned orders; no order is changed. |
+
+> **Project 2 extension (visible order progress).** Step 4's progress view and extensions 4b–4c were added in Project 2; previously only the current status word was shown, and `Accepted`/`Ready` had no visual treatment. Orders store only their current status, so progress is derived from it; recording *when* each stage was reached would need a status-history table and is future scope. Implemented in `proj2/order_progress.py` and `proj2/templates/profile.html`; tested in `proj2/sef26tests/test_uc13_order_progress.py` and `test_uc13_track_orders.py`.
 
 ## UC14 — Download order receipt
 
@@ -366,11 +368,26 @@ This catalog was derived from the behavior implemented in the Weeklies repositor
 | **Extensions** | 1a. No orders exist → Weeklies records and shows zero-valued metrics.<br>2a. An order contains malformed details → Weeklies omits its malformed monetary/item details while retaining countable information.<br>2b. No item frequency can be determined → Weeklies shows no popular item.<br>3a. Snapshot recording fails → Weeklies reports or safely degrades without altering order fulfillment.<br>4a. Fewer than thirty snapshots exist → Weeklies shows the available history only.<br>1b. Authentication is absent → Weeklies redirects to restaurant sign-in. |
 | **Postconditions** | The owner has seen analytics scoped to their restaurant, and a new snapshot records the calculated state when snapshot storage succeeds. |
 
+## UC29 — Swap a single planned meal
+
+| Part | Specification |
+|---|---|
+| **Name** | Swap a single planned meal |
+| **Primary actor** | Signed-in customer |
+| **Stakeholders & interests** | Customer—wants to replace one planned meal without regenerating or losing the rest of the plan. Restaurants—want only available, in-stock offerings substituted in. Weeklies—wants every planned item to respect the customer's declared allergies. |
+| **Preconditions** | The customer is signed in and their plan has an item in the chosen date/meal slot. |
+| **Trigger** | The customer chooses to swap one meal on the calendar. |
+| **Main success scenario** | 1. The customer selects a planned date and meal period.<br>2. Weeklies lists the in-stock items from restaurants that are open at that meal time and free of the customer's stored allergies.<br>3. The customer picks a replacement item.<br>4. Weeklies re-checks the item's availability and allergens on the server.<br>5. Weeklies replaces only that date/meal slot and saves the plan.<br>6. Weeklies shows the calendar with the replacement and confirms the swap. |
+| **Extensions** | 1a. The date or meal period is invalid → Weeklies rejects the request and leaves the plan unchanged.<br>1b. The slot has no planned meal → Weeklies reports that there is nothing to swap.<br>2a. No other item qualifies → Weeklies reports that no alternatives are available.<br>3a. The chosen item is already planned in that slot → Weeklies reports it and makes no change.<br>4a. The item does not exist → Weeklies rejects the swap.<br>4b. The item is out of stock → Weeklies rejects the swap.<br>4c. The restaurant is not open for business or is closed at that meal time → Weeklies rejects the swap.<br>4d. The item contains one of the customer's stored allergies → Weeklies rejects the swap, whatever allergies the request claims.<br>1c. Authentication is absent → Weeklies requires sign-in. |
+| **Postconditions** | Exactly one slot holds the new item; every other date/meal entry in the plan is unchanged. On any rejection the stored plan is unchanged. |
+
+> **Project 2 extension (single-meal swaps).** Added in Project 2. Availability and allergen checks run on the server against the account's stored allergies, never the request. Implemented in `proj2/meal_swap.py`, the `/menu/swap` and `/menu/swap/options` routes in `proj2/Flask_app.py`, and the calendar in `proj2/templates/index.html`; tested in `proj2/sef26tests/test_uc29_swap_meal.py`, `proj2/tests/integration/test_meal_swap_route.py`, and `proj2/tests/unit/test_meal_swap_*.py`.
+
 ## Coverage summary
 
-The catalog contains 28 use cases:
+The catalog contains 29 use cases:
 
-- 17 customer/visitor goals
+- 18 customer/visitor goals
 - 11 restaurant-owner goals
 - Full coverage of implemented account, planning, browsing, ordering, receipt, review, fulfillment, and analytics flows
 - Explicit extensions for authentication, ownership, invalid lifecycle transitions, malformed serialized data, unavailable LLM behavior, and best-effort analytics

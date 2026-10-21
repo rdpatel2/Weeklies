@@ -1,0 +1,16 @@
+{
+  "italian": {
+    "id": 1,
+    "name": "Taste of Italy",
+    "email": "owner@tasteofitaly.com",
+    "password": "password123",
+    "city": "Raleigh"
+  },
+  "bistro": {
+    "id": 2,
+    "name": "Green Garden Bistro",
+    "email": "owner@greengarden.com",
+    "password": "password123",
+    "city": "Raleigh"
+  }
+}

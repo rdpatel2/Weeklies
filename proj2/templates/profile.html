@@ -16,7 +16,7 @@
       <a href="{{ url_for('profile') }}">Profile</a>
       <a href="{{ url_for('restaurants') }}">Restaurants</a>
       <a href="{{ url_for('orders') }}">Order</a>
-      <a href="{{ url_for('db_view') }}">DB</a>
+      {% if db_view_enabled %}<a href="{{ url_for('db_view') }}">DB</a>{% endif %}
       <a href="{{ url_for('logout') }}" data-confirm="Log out now?">Logout</a>
     </nav>
   </div>
@@ -121,9 +121,9 @@
     </div>
     <div class="card max-w-lg" style="max-width: var(--container);">
       <div class="card-body">
-        {% if request.args.get('gen_error') %}
-          <div class="flash danger" data-autohide="5000">Menu generation failed. Please try again.</div>
-        {% endif %}
+        <div id="menuError" class="flash danger" role="alert" {% if not generation_error %}hidden{% endif %}>
+          {{ generation_error or '' }}
+        </div>
         <form method="POST" action="{{ url_for('generate_menu') }}" class="form-grid">
           <div class="form-row">
             <label for="start_date">Start date</label>
@@ -140,6 +140,13 @@
             <input class="input" type="number" id="days" name="days" min="1" max="14" value="1" style="width:120px;">
           </div>
           <!-- Optional overrides; leave blank to use your saved profile -->
+          <div class="form-row">
+            <label for="weekly_cap">Weekly item-price cap ($, optional)</label>
+            <input class="input" type="number" id="weekly_cap" name="weekly_cap" min="0" step="0.01"
+                   placeholder="e.g., 100.00" aria-describedby="weekly-cap-help">
+            <p id="weekly-cap-help" class="muted">Applies to each Monday–Sunday week, including meals already planned.
+              One serving per meal; taxes, delivery fees, and tips are extra. Leave blank for no cap.</p>
+          </div>
           <div class="form-row">
             <label for="preferences">Preferences (override)</label>
             <input class="input" type="text" id="preferences" name="preferences" placeholder="e.g., high protein, low carb">
@@ -198,18 +205,22 @@
                 <td>{{ order.restaurant }}</td> <!-- NEW -->
                 <td>{{ order.date }}</td>
                 <td>
-                  {% set s = order.status|lower %}
-                  {% if s == 'delivered' %}
-                    <span class="status-bubble status-delivered">Delivered</span>
-                  {% elif s == 'preparing' %}
-                    <span class="status-bubble status-preparing">Preparing</span>
-                  {% elif s == 'cancelled' %}
-                    <span class="status-bubble status-cancelled">Cancelled</span>
-                  {% elif s == 'ordered' %}
-                    <span class="status-bubble status-ordered">Ordered</span>
-                  {% else %}
-                    {{ order.status }}
-                  {% endif %}
+                  {# UC13 progress: view model built by proj2/order_progress.py #}
+                  {% set p = order.progress %}
+                  <div class="order-progress" data-order-id="{{ order.id }}" data-status="{{ p.key }}">
+                    <span class="status-bubble status-{{ p.key }}">{{ p.label }}</span>
+                    {% if p.known %}
+                    <ol class="stepper{% if p.cancelled %} stepper-cancelled{% endif %}" aria-label="Order progress">
+                      {% for step in p.steps %}
+                      <li class="step step-{{ step.state }}" data-step="{{ step.key }}" data-state="{{ step.state }}"{% if step.state == 'current' %} aria-current="step"{% endif %}>
+                        <span class="step-dot" aria-hidden="true"></span>
+                        <span class="step-label">{{ step.label }}</span>
+                        <span class="sr-only">({{ step.state }})</span>
+                      </li>
+                      {% endfor %}
+                    </ol>
+                    {% endif %}
+                  </div>
                 </td>
                 <td>
                   <a class="btn btn-outline btn-sm"
@@ -298,7 +309,30 @@
   .status-delivered {background-color:#28a745;} /* green */
   .status-preparing {background-color:#fd7e14;} /* orange */
   .status-cancelled {background-color:#dc3545;} /* red */
-  .status-ordered  {background-color:#ffc107;} /* yellow */
+  .status-ordered  {background-color:#ffc107; color:#212529;} /* yellow; dark text, white was unreadable */
+  .status-accepted {background-color:#2563eb;} /* blue */
+  .status-ready    {background-color:#0f766e;} /* teal */
+  .status-unknown  {background-color:#6c757d;} /* grey: status outside the known lifecycle */
+
+  /* UC13 order progress stepper */
+  .order-progress { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
+  .stepper { list-style:none; margin:0; padding:0; display:flex; }
+  .step { position:relative; display:flex; flex-direction:column; align-items:center; min-width:64px; font-size:11px; color:var(--muted); }
+  .step + .step::before {
+    content:""; position:absolute; top:5px; right:50%; width:100%; height:2px; background:var(--border);
+  }
+  .step + .step-done::before, .step + .step-current::before { background:var(--success); }
+  .step-dot {
+    position:relative; z-index:1; box-sizing:border-box; width:12px; height:12px; margin-bottom:4px;
+    border-radius:50%; border:2px solid var(--border); background:var(--surface);
+  }
+  .step-done .step-dot { background:var(--success); border-color:var(--success); }
+  .step-current .step-dot { background:var(--primary); border-color:var(--primary); box-shadow:0 0 0 3px var(--ring); }
+  .step-current[data-step="delivered"] .step-dot { background:var(--success); border-color:var(--success); box-shadow:none; }
+  .step-current .step-label { color:var(--text); font-weight:600; }
+  .stepper-cancelled .step { opacity:.45; }
+  @media (max-width:639px){ .step { min-width:22px; } .step-label { display:none; } }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
   .meta-grid { display:grid; grid-template-columns:1fr; gap:14px; }
   @media (min-width:640px){ .meta-grid { grid-template-columns:1fr 1fr; } }

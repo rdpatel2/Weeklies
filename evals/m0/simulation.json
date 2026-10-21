@@ -1,0 +1,4170 @@
+{
+  "assumptions": {
+    "budget_attention": "Uniform(0.35, 0.9); probability of trying to repair an over-budget plan.",
+    "budget_cents": [
+      6500,
+      8000,
+      9500,
+      11000
+    ],
+    "budget_repair": "Check triangular(10,50,20). With budget-attention probability attempt 1..3 cheaper swaps of the most expensive dinner. Each swap takes lognormal(log(50),0.5) browsing plus 15 seconds review, scaled by personal traits.",
+    "carefulness": "Lognormal(0, 0.25), clamped to 0.6..1.7; shared across both tasks.",
+    "manual": "Setup uniform(20,50); each meal browse lognormal(log(60),0.5), review triangular(8,35,18), record uniform(8,18). 15% chance of backtracking uniform(30,80).",
+    "pace": "Lognormal(0, 0.25), clamped to 0.55..1.9; shared across both tasks.",
+    "patience_seconds": "Uniform integer 700..1200; shared across tasks; truncate last event.",
+    "practice": "Human actions in the second task take 92% as long; generation waits unaffected.",
+    "preferences": "30% vegetarian; one restriction sampled from none, milk, peanuts, wheat.",
+    "prices": "One serving per dinner; no taxes or fees; all items available and restaurants open.",
+    "provenance": "Fictional users and menu; neither the app nor a model is executed.",
+    "scaling": "Browsing/setup/recording use pace; reviews/checks use carefulness; all human actions include practice multiplier.",
+    "selection": "Shared item tastes uniform(0.5,1.5); preferred cuisine doubles weight. Weight = taste * cuisine factor / dollar price ** pressure; pressure is attention * 0.8 manually and attention * 2 with Weeklies. Repeats allowed.",
+    "weeklies": "Setup uniform(35,75); wait lognormal(log(45),0.6), with 12% chance of a uniform(3,6) multiplier. Each meal review triangular(10,50,20), record uniform(5,12). Shared rejection chance uniform(0.12,0.38); replacement browse triangular(25,130,55) followed by another review."
+  },
+  "catalog": [
+    {
+      "allergens": [],
+      "cuisine": "Mediterranean",
+      "item_id": "1",
+      "name": "Garden bowl",
+      "price_cents": 795,
+      "vegetarian": true
+    },
+    {
+      "allergens": [],
+      "cuisine": "Indian",
+      "item_id": "2",
+      "name": "Lentil stew",
+      "price_cents": 895,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "wheat"
+      ],
+      "cuisine": "Asian",
+      "item_id": "3",
+      "name": "Vegetable stir fry",
+      "price_cents": 995,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "wheat"
+      ],
+      "cuisine": "Mexican",
+      "item_id": "4",
+      "name": "Bean burrito",
+      "price_cents": 895,
+      "vegetarian": true
+    },
+    {
+      "allergens": [],
+      "cuisine": "Mexican",
+      "item_id": "5",
+      "name": "Chicken rice",
+      "price_cents": 1095,
+      "vegetarian": false
+    },
+    {
+      "allergens": [
+        "soy"
+      ],
+      "cuisine": "Indian",
+      "item_id": "6",
+      "name": "Tofu curry",
+      "price_cents": 1195,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "wheat",
+        "milk"
+      ],
+      "cuisine": "Italian",
+      "item_id": "7",
+      "name": "Pasta primavera",
+      "price_cents": 1295,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "fish"
+      ],
+      "cuisine": "Mediterranean",
+      "item_id": "8",
+      "name": "Salmon plate",
+      "price_cents": 1695,
+      "vegetarian": false
+    },
+    {
+      "allergens": [],
+      "cuisine": "Mediterranean",
+      "item_id": "9",
+      "name": "Chicken salad",
+      "price_cents": 1195,
+      "vegetarian": false
+    },
+    {
+      "allergens": [
+        "peanuts",
+        "wheat"
+      ],
+      "cuisine": "Asian",
+      "item_id": "10",
+      "name": "Peanut noodles",
+      "price_cents": 1095,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "wheat",
+        "milk"
+      ],
+      "cuisine": "Italian",
+      "item_id": "11",
+      "name": "Vegetable pizza",
+      "price_cents": 1495,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "wheat",
+        "milk"
+      ],
+      "cuisine": "American",
+      "item_id": "12",
+      "name": "Beef burger",
+      "price_cents": 1595,
+      "vegetarian": false
+    },
+    {
+      "allergens": [],
+      "cuisine": "Mediterranean",
+      "item_id": "13",
+      "name": "Hummus plate",
+      "price_cents": 895,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "milk"
+      ],
+      "cuisine": "Indian",
+      "item_id": "14",
+      "name": "Chicken curry",
+      "price_cents": 1395,
+      "vegetarian": false
+    },
+    {
+      "allergens": [
+        "soy"
+      ],
+      "cuisine": "Asian",
+      "item_id": "15",
+      "name": "Rice and tofu",
+      "price_cents": 995,
+      "vegetarian": true
+    },
+    {
+      "allergens": [
+        "milk"
+      ],
+      "cuisine": "Italian",
+      "item_id": "16",
+      "name": "Mushroom risotto",
+      "price_cents": 1395,
+      "vegetarian": true
+    }
+  ],
+  "catalog_sha256": "2b1aedd9f2cdd228cfd4bca919deabd3d0418cea39cd98a0642f6656715403b5",
+  "input_sha256": "d37a3da74d8ad69a9ff5442a66b6aba2e9d0b1b7c8509a49e44189df1b1474dc",
+  "participants": 10,
+  "seed": 510,
+  "traces": [
+    {
+      "participant_id": "sim-01",
+      "profile": {
+        "avoided_allergen": "wheat",
+        "budget_attention": 0.7473283310294971,
+        "budget_cents": 9500,
+        "carefulness": 1.0283026339926746,
+        "pace": 1.598600317489003,
+        "patience_seconds": 1148,
+        "preferred_cuisine": "Mexican",
+        "rejection_probability": 0.18270940865929824,
+        "tastes": {
+          "1": 1.3047651449532343,
+          "10": 1.1623671071056103,
+          "11": 1.2821920919346295,
+          "12": 1.3911440218544606,
+          "13": 1.1438442257109789,
+          "14": 1.0374619185824119,
+          "15": 1.0561898045929818,
+          "16": 1.0379490547600532,
+          "2": 1.0081974744307103,
+          "3": 0.9370668755006774,
+          "4": 1.0882856492340203,
+          "5": 0.5934004778594018,
+          "6": 1.293447644139912,
+          "7": 1.3551977879975143,
+          "8": 0.9096482003070446,
+          "9": 1.0417301076331005
+        },
+        "vegetarian": false
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 6965,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 30.34
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 53.56,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.2,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 19.37,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 127.85,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 22.06,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 24.62,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 84.55,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.88,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.19,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 104.99,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 30.7,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 22.53,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 135.66,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.06,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 25.1,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 53.47,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.03,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 19.94,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 94.61,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 15.71,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 26.11,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 18.35
+            }
+          ],
+          "method": "baseline",
+          "second_task": true,
+          "seconds": 992.88,
+          "selections": [
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 1
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 2
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 3
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 4
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 5
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 6
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 8765,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 84.74
+            },
+            {
+              "completed": true,
+              "long_wait": true,
+              "phase": "generation_wait",
+              "seconds": 211.85
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.6,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.62,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 33.66,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.05,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.55,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "new_item_id": "14",
+              "old_item_id": "2",
+              "phase": "replacement_browse",
+              "seconds": 166.51,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 18.69,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.31,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 32.52,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "new_item_id": "8",
+              "old_item_id": "14",
+              "phase": "replacement_browse",
+              "seconds": 95.04,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 16.99,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 13.89,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.2,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.75,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 28.12,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 17.07,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 32.97,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.23,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 12.41
+            }
+          ],
+          "method": "weeklies",
+          "second_task": false,
+          "seconds": 888.77,
+          "selections": [
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 1
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 2
+            },
+            {
+              "item_id": "14",
+              "price_cents": 1395,
+              "slot": 3
+            },
+            {
+              "item_id": "8",
+              "price_cents": 1695,
+              "slot": 4
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 5
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 6
+            },
+            {
+              "item_id": "14",
+              "price_cents": 1395,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-02",
+      "profile": {
+        "avoided_allergen": "wheat",
+        "budget_attention": 0.4886325337693495,
+        "budget_cents": 6500,
+        "carefulness": 0.9425154344364708,
+        "pace": 0.9867577546152009,
+        "patience_seconds": 1165,
+        "preferred_cuisine": "American",
+        "rejection_probability": 0.2999929085583544,
+        "tastes": {
+          "1": 0.6252943500740527,
+          "10": 0.7498173199058717,
+          "11": 1.444150735134735,
+          "12": 1.1534927504650851,
+          "13": 0.9411331595012561,
+          "14": 0.8383452559352345,
+          "15": 1.0025885519986493,
+          "16": 0.9888467030836621,
+          "2": 0.9558835081279548,
+          "3": 1.3279803253686244,
+          "4": 1.0288207043867788,
+          "5": 0.6667513855378744,
+          "6": 0.739436278775606,
+          "7": 1.4575577646472826,
+          "8": 0.9914260896950123,
+          "9": 1.3505234574458698
+        },
+        "vegetarian": true
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 7765,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 42.39
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 26.85,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 11.17,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 16.16,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 147.28,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.99,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.99,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 29.88,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.39,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.81,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 27.57,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 13.6,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "new_item_id": "1",
+              "old_item_id": "16",
+              "phase": "backtrack",
+              "seconds": 42.26,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 16.08,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 104.13,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.96,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.56,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 48.17,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 10.04,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.41,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 100.3,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 15.94,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.79,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 17.75
+            }
+          ],
+          "method": "baseline",
+          "second_task": true,
+          "seconds": 778.47,
+          "selections": [
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 1
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 2
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 3
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 4
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 5
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 6
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 6165,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 64.34
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 41.33
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 15.75,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.22,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.95,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.78,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.89,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.65,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.91,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.46,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 36.12,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "new_item_id": "2",
+              "old_item_id": "15",
+              "phase": "replacement_browse",
+              "seconds": 49.71,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 17.09,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.95,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 37.88,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.55,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 27.43,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.92,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 34.15
+            },
+            {
+              "completed": true,
+              "new_item_id": "2",
+              "old_item_id": "16",
+              "phase": "budget_swap",
+              "seconds": 46.55,
+              "slot": 3
+            }
+          ],
+          "method": "weeklies",
+          "second_task": false,
+          "seconds": 483.63,
+          "selections": [
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 1
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 2
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 3
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 4
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 5
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 6
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-03",
+      "profile": {
+        "avoided_allergen": null,
+        "budget_attention": 0.5259651301752779,
+        "budget_cents": 11000,
+        "carefulness": 0.791450363006951,
+        "pace": 1.3826693774591452,
+        "patience_seconds": 1117,
+        "preferred_cuisine": "Italian",
+        "rejection_probability": 0.3756709886655794,
+        "tastes": {
+          "1": 1.169898526103245,
+          "10": 1.285347129611524,
+          "11": 1.328049748108,
+          "12": 0.5383766940675543,
+          "13": 0.761942119444249,
+          "14": 1.4115739497939006,
+          "15": 0.9084700930426713,
+          "16": 0.5453668765748804,
+          "2": 0.694994546022801,
+          "3": 0.8243098454954684,
+          "4": 0.6394481208928423,
+          "5": 1.4261848487484396,
+          "6": 1.2402891565860168,
+          "7": 0.7528023401135796,
+          "8": 1.4470593904748101,
+          "9": 1.0076625305112428
+        },
+        "vegetarian": true
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 7265,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 58.23
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 51.83,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 13.5,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.2,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 131.48,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 13.78,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 19.21,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 102.85,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 15.91,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 19.83,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 77.3,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 9.34,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 16.6,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 110.11,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.87,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 19.15,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 105.52,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 12.61,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.09,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 120.64,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 12.43,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "new_item_id": "10",
+              "old_item_id": "13",
+              "phase": "backtrack",
+              "seconds": 42.5,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 21.43,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 14.41
+            }
+          ],
+          "method": "baseline",
+          "second_task": false,
+          "seconds": 1032.82,
+          "selections": [
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 1
+            },
+            {
+              "item_id": "3",
+              "price_cents": 995,
+              "slot": 2
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 3
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 4
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 5
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 6
+            },
+            {
+              "item_id": "10",
+              "price_cents": 1095,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 7565,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 87.99
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 73.07
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.61,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.53,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.23,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.77,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.72,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "new_item_id": "11",
+              "old_item_id": "4",
+              "phase": "replacement_browse",
+              "seconds": 140.65,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 13.21,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.87,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.29,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.22,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.63,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.26,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 33.03,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "new_item_id": "16",
+              "old_item_id": "10",
+              "phase": "replacement_browse",
+              "seconds": 77.01,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 27.32,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.39,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.74,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "new_item_id": "2",
+              "old_item_id": "4",
+              "phase": "replacement_browse",
+              "seconds": 89.28,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 25.25,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.85,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 10.55
+            }
+          ],
+          "method": "weeklies",
+          "second_task": true,
+          "seconds": 758.47,
+          "selections": [
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 1
+            },
+            {
+              "item_id": "10",
+              "price_cents": 1095,
+              "slot": 2
+            },
+            {
+              "item_id": "11",
+              "price_cents": 1495,
+              "slot": 3
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 4
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 5
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 6
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-04",
+      "profile": {
+        "avoided_allergen": null,
+        "budget_attention": 0.3966601101342319,
+        "budget_cents": 8000,
+        "carefulness": 1.7,
+        "pace": 1.1975575600748056,
+        "patience_seconds": 923,
+        "preferred_cuisine": "Indian",
+        "rejection_probability": 0.21973052216632147,
+        "tastes": {
+          "1": 0.6517985646720265,
+          "10": 0.6288844045481161,
+          "11": 0.5097002349139135,
+          "12": 1.1644129313454075,
+          "13": 1.3913428477729064,
+          "14": 1.2698426573813735,
+          "15": 0.7001760433117459,
+          "16": 1.07001967270188,
+          "2": 0.6398871620308252,
+          "3": 0.5685157091453543,
+          "4": 1.295736341471207,
+          "5": 0.8006551277049635,
+          "6": 1.259301304273047,
+          "7": 0.9334967623868776,
+          "8": 0.6304215196852956,
+          "9": 1.4766959682735064
+        },
+        "vegetarian": true
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 7965,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 34.21
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 31.29,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 27.79,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.37,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 71.52,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 27.87,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.7,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 125.38,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.47,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.47,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 127.09,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 33.8,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 18.9,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 47.98,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 46.38,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "new_item_id": "4",
+              "old_item_id": "10",
+              "phase": "backtrack",
+              "seconds": 36.1,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.73,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 23.62,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 35.09,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.33,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 83.27,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.67,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 17.63,
+              "slot": 7
+            },
+            {
+              "completed": false,
+              "phase": "budget_check",
+              "seconds": 33.34
+            }
+          ],
+          "method": "baseline",
+          "second_task": true,
+          "seconds": 923.0,
+          "selections": [
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 1
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 2
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 3
+            },
+            {
+              "item_id": "11",
+              "price_cents": 1495,
+              "slot": 4
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 5
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 6
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "time_limit",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 7365,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 52.75
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 82.58
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 29.0,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.62,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 50.59,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.27,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 45.78,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.82,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 71.07,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.05,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 53.8,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "new_item_id": "10",
+              "old_item_id": "6",
+              "phase": "replacement_browse",
+              "seconds": 76.13,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 71.8,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.94,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 55.85,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.19,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 43.75,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "new_item_id": "4",
+              "old_item_id": "6",
+              "phase": "replacement_browse",
+              "seconds": 59.31,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 70.07,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.76,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 39.91
+            }
+          ],
+          "method": "weeklies",
+          "second_task": false,
+          "seconds": 862.04,
+          "selections": [
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 1
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 2
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 3
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 4
+            },
+            {
+              "item_id": "10",
+              "price_cents": 1095,
+              "slot": 5
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 6
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-05",
+      "profile": {
+        "avoided_allergen": "wheat",
+        "budget_attention": 0.41804905914121404,
+        "budget_cents": 8000,
+        "carefulness": 0.9333468027888673,
+        "pace": 1.0185171487904785,
+        "patience_seconds": 835,
+        "preferred_cuisine": "Asian",
+        "rejection_probability": 0.12898387564680033,
+        "tastes": {
+          "1": 0.7550359326268328,
+          "10": 0.8477588250376211,
+          "11": 0.8799007736192006,
+          "12": 0.8416612943182815,
+          "13": 1.047841516058464,
+          "14": 1.1764978375113333,
+          "15": 0.5380703815221224,
+          "16": 0.783585665354143,
+          "2": 0.6305602061914745,
+          "3": 0.5901675295063328,
+          "4": 0.9492301008348958,
+          "5": 0.5480324582500389,
+          "6": 1.3507367900229776,
+          "7": 0.7281507333144529,
+          "8": 0.8301167521132855,
+          "9": 0.5068927484158406
+        },
+        "vegetarian": true
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 7865,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 37.8
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 45.13,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.7,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.7,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 52.49,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 10.53,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.17,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 52.56,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.06,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.4,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 69.17,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.63,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.43,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 54.5,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.72,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.63,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 54.73,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.99,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 13.18,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 65.84,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 28.16,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.28,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 22.35
+            }
+          ],
+          "method": "baseline",
+          "second_task": true,
+          "seconds": 678.15,
+          "selections": [
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 1
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 2
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 3
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 4
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 5
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 6
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 7765,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 43.92
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 26.69
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.22,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.83,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 19.86,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "new_item_id": "15",
+              "old_item_id": "16",
+              "phase": "replacement_browse",
+              "seconds": 89.06,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 19.98,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.77,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.77,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.11,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.2,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.02,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.59,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "new_item_id": "16",
+              "old_item_id": "15",
+              "phase": "replacement_browse",
+              "seconds": 64.1,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 24.62,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.8,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.06,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.74,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 19.52,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "new_item_id": "13",
+              "old_item_id": "15",
+              "phase": "replacement_browse",
+              "seconds": 98.26,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 26.98,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.8,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 37.52
+            }
+          ],
+          "method": "weeklies",
+          "second_task": false,
+          "seconds": 625.42,
+          "selections": [
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 1
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 2
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 3
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 4
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 5
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 6
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-06",
+      "profile": {
+        "avoided_allergen": "milk",
+        "budget_attention": 0.6631357625721752,
+        "budget_cents": 9500,
+        "carefulness": 1.0609518971557768,
+        "pace": 0.9607180195263711,
+        "patience_seconds": 886,
+        "preferred_cuisine": "Mexican",
+        "rejection_probability": 0.24334465738205108,
+        "tastes": {
+          "1": 1.059895034588787,
+          "10": 0.6831968166173401,
+          "11": 0.7634090541647152,
+          "12": 0.9179286273416095,
+          "13": 1.4657983862408108,
+          "14": 0.6902508367969232,
+          "15": 1.3081864313754048,
+          "16": 0.734115701439745,
+          "2": 1.3057929020736088,
+          "3": 0.5077135841424425,
+          "4": 0.696515615548475,
+          "5": 1.2269455620294503,
+          "6": 0.6041368779825593,
+          "7": 1.0806447526656302,
+          "8": 1.2618235633576989,
+          "9": 0.6823801216033194
+        },
+        "vegetarian": false
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 6765,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 37.27
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 51.12,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 29.8,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.26,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 45.81,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 25.48,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.06,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 26.8,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.95,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 16.88,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 66.9,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.75,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "new_item_id": "1",
+              "old_item_id": "4",
+              "phase": "backtrack",
+              "seconds": 30.51,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.43,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 25.28,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.39,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.56,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 101.37,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 36.17,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.77,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 50.32,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.33,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.73,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 39.85
+            }
+          ],
+          "method": "baseline",
+          "second_task": false,
+          "seconds": 729.79,
+          "selections": [
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 1
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 2
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 3
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 4
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 5
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 6
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 6865,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 38.28
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 100.06
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 22.25,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.9,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 22.63,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 5.54,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 31.21,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "new_item_id": "13",
+              "old_item_id": "5",
+              "phase": "replacement_browse",
+              "seconds": 48.55,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 15.65,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.07,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.87,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.79,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 22.37,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.93,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 18.97,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "new_item_id": "4",
+              "old_item_id": "13",
+              "phase": "replacement_browse",
+              "seconds": 80.26,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 27.79,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 5.08,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.36,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.96,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 33.07
+            }
+          ],
+          "method": "weeklies",
+          "second_task": true,
+          "seconds": 563.59,
+          "selections": [
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 1
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 2
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 3
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 4
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 5
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 6
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-07",
+      "profile": {
+        "avoided_allergen": null,
+        "budget_attention": 0.5913242143942999,
+        "budget_cents": 11000,
+        "carefulness": 0.8868908843487882,
+        "pace": 1.2903706022633266,
+        "patience_seconds": 1110,
+        "preferred_cuisine": "Asian",
+        "rejection_probability": 0.26640132397217653,
+        "tastes": {
+          "1": 1.3734892221141681,
+          "10": 0.8517761637610708,
+          "11": 0.7553774591057052,
+          "12": 1.0106348544202226,
+          "13": 0.6338791817009617,
+          "14": 1.4630374456705246,
+          "15": 1.4210056735193393,
+          "16": 1.4194654529126733,
+          "2": 1.1813153233301548,
+          "3": 0.5698135256846678,
+          "4": 0.9593821382050399,
+          "5": 0.7792373886115531,
+          "6": 0.8330883537700997,
+          "7": 1.363011407816586,
+          "8": 0.7318636974673303,
+          "9": 0.617826107320042
+        },
+        "vegetarian": true
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 7965,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 41.68
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 41.12,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.06,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.57,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 119.58,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.14,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "new_item_id": "11",
+              "old_item_id": "2",
+              "phase": "backtrack",
+              "seconds": 45.48,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 16.12,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 19.61,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.5,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 21.09,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 46.22,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 7.34,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 20.89,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 42.8,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.61,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.61,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 306.32,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.34,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.42,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 127.76,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.17,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.75,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 18.85
+            }
+          ],
+          "method": "baseline",
+          "second_task": true,
+          "seconds": 1040.03,
+          "selections": [
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 1
+            },
+            {
+              "item_id": "11",
+              "price_cents": 1495,
+              "slot": 2
+            },
+            {
+              "item_id": "7",
+              "price_cents": 1295,
+              "slot": 3
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 4
+            },
+            {
+              "item_id": "10",
+              "price_cents": 1095,
+              "slot": 5
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 6
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 8065,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 94.83
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 49.97
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 15.16,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "new_item_id": "11",
+              "old_item_id": "3",
+              "phase": "replacement_browse",
+              "seconds": 110.54,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 17.81,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.6,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.06,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.47,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.09,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.24,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.64,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.3,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.46,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 13.77,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 35.01,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.35,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.9,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.2,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 13.67
+            }
+          ],
+          "method": "weeklies",
+          "second_task": false,
+          "seconds": 518.07,
+          "selections": [
+            {
+              "item_id": "11",
+              "price_cents": 1495,
+              "slot": 1
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 2
+            },
+            {
+              "item_id": "10",
+              "price_cents": 1095,
+              "slot": 3
+            },
+            {
+              "item_id": "3",
+              "price_cents": 995,
+              "slot": 4
+            },
+            {
+              "item_id": "7",
+              "price_cents": 1295,
+              "slot": 5
+            },
+            {
+              "item_id": "3",
+              "price_cents": 995,
+              "slot": 6
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-08",
+      "profile": {
+        "avoided_allergen": null,
+        "budget_attention": 0.619964646680037,
+        "budget_cents": 9500,
+        "carefulness": 0.9177628511891534,
+        "pace": 0.8983546619392812,
+        "patience_seconds": 1098,
+        "preferred_cuisine": "Mexican",
+        "rejection_probability": 0.1613308460894429,
+        "tastes": {
+          "1": 1.3021707697350922,
+          "10": 1.2437394980158945,
+          "11": 1.1365611443949515,
+          "12": 1.2555912371613251,
+          "13": 1.0617917074736911,
+          "14": 0.9594418236206809,
+          "15": 0.7614546546292784,
+          "16": 0.8002148661115399,
+          "2": 0.5860814850763577,
+          "3": 1.2293221682474549,
+          "4": 1.135055810448847,
+          "5": 1.4943159464916391,
+          "6": 0.7816234049394065,
+          "7": 1.0076395671420668,
+          "8": 1.116002350701517,
+          "9": 1.1104988785849752
+        },
+        "vegetarian": false
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 8865,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 29.4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 41.0,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 13.85,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.02,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 99.43,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 13.1,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.11,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 42.87,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 14.02,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.89,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 102.96,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.18,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.2,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 29.43,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 12.01,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.76,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 138.77,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.03,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 14.4,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 57.34,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.01,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.6,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 14.94
+            }
+          ],
+          "method": "baseline",
+          "second_task": false,
+          "seconds": 757.32,
+          "selections": [
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 1
+            },
+            {
+              "item_id": "7",
+              "price_cents": 1295,
+              "slot": 2
+            },
+            {
+              "item_id": "11",
+              "price_cents": 1495,
+              "slot": 3
+            },
+            {
+              "item_id": "12",
+              "price_cents": 1595,
+              "slot": 4
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 5
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 6
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 8265,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 38.89
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 32.84
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 30.98,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "new_item_id": "5",
+              "old_item_id": "6",
+              "phase": "replacement_browse",
+              "seconds": 83.79,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 14.61,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 4.86,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 13.58,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.86,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 25.12,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.95,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 27.09,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.57,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.32,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.12,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 34.56,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.36,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 36.49,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "new_item_id": "5",
+              "old_item_id": "3",
+              "phase": "replacement_browse",
+              "seconds": 43.04,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 25.02,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.29,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 16.11
+            }
+          ],
+          "method": "weeklies",
+          "second_task": true,
+          "seconds": 502.45,
+          "selections": [
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 1
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 2
+            },
+            {
+              "item_id": "14",
+              "price_cents": 1395,
+              "slot": 3
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 4
+            },
+            {
+              "item_id": "7",
+              "price_cents": 1295,
+              "slot": 5
+            },
+            {
+              "item_id": "11",
+              "price_cents": 1495,
+              "slot": 6
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-09",
+      "profile": {
+        "avoided_allergen": "wheat",
+        "budget_attention": 0.5746183837841063,
+        "budget_cents": 8000,
+        "carefulness": 0.8603366665848022,
+        "pace": 1.0575405165776104,
+        "patience_seconds": 849,
+        "preferred_cuisine": "Mediterranean",
+        "rejection_probability": 0.13562304645690823,
+        "tastes": {
+          "1": 0.6771613259307874,
+          "10": 0.8258881024195077,
+          "11": 1.1698787993282154,
+          "12": 0.5138054392726142,
+          "13": 1.3274150806012455,
+          "14": 1.1187824033057723,
+          "15": 1.4194719754543696,
+          "16": 0.9483937743509424,
+          "2": 1.0201075974066809,
+          "3": 1.354273108438524,
+          "4": 0.7617886790147652,
+          "5": 1.1907093775888913,
+          "6": 1.0596199297153945,
+          "7": 0.6427861194451012,
+          "8": 1.443135418807489,
+          "9": 1.191767012972572
+        },
+        "vegetarian": false
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 6870,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 50.4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 154.97,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 12.95,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "new_item_id": "5",
+              "old_item_id": "8",
+              "phase": "backtrack",
+              "seconds": 40.94,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.97,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 80.0,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.09,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 16.23,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 36.44,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.52,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.82,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 40.26,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 25.76,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.97,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 60.62,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 25.63,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.82,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 61.77,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.57,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "new_item_id": "5",
+              "old_item_id": "1",
+              "phase": "backtrack",
+              "seconds": 68.19,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 15.52,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 30.68,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 19.26,
+              "slot": 7
+            },
+            {
+              "completed": false,
+              "new_item_id": "14",
+              "old_item_id": "6",
+              "phase": "backtrack",
+              "seconds": 0.62,
+              "slot": 7
+            }
+          ],
+          "method": "baseline",
+          "second_task": false,
+          "seconds": 849.0,
+          "selections": [
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 1
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 2
+            },
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 3
+            },
+            {
+              "item_id": "16",
+              "price_cents": 1395,
+              "slot": 4
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 5
+            },
+            {
+              "item_id": "5",
+              "price_cents": 1095,
+              "slot": 6
+            }
+          ],
+          "stop_reason": "time_limit",
+          "valid_meals": 6
+        },
+        "weeklies": {
+          "cost_cents": 7765,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 45.72
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 129.1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 28.26,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.3,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 27.76,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "new_item_id": "9",
+              "old_item_id": "8",
+              "phase": "replacement_browse",
+              "seconds": 54.48,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 22.9,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.38,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 38.52,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.13,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 31.54,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.01,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 19.61,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 5.68,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.37,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.68,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 23.14,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.71,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 26.91
+            },
+            {
+              "completed": true,
+              "new_item_id": "6",
+              "old_item_id": "8",
+              "phase": "budget_swap",
+              "seconds": 101.67,
+              "slot": 3
+            }
+          ],
+          "method": "weeklies",
+          "second_task": true,
+          "seconds": 633.87,
+          "selections": [
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 1
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 2
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 3
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 4
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 5
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 6
+            },
+            {
+              "item_id": "8",
+              "price_cents": 1695,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    },
+    {
+      "participant_id": "sim-10",
+      "profile": {
+        "avoided_allergen": "milk",
+        "budget_attention": 0.42913092369387457,
+        "budget_cents": 6500,
+        "carefulness": 0.9395583930831345,
+        "pace": 1.1157519601258166,
+        "patience_seconds": 1001,
+        "preferred_cuisine": "American",
+        "rejection_probability": 0.2555715496210141,
+        "tastes": {
+          "1": 0.8843555192830607,
+          "10": 1.1182042071240073,
+          "11": 1.2370444445912256,
+          "12": 0.9667616551511882,
+          "13": 1.0570072035314477,
+          "14": 1.0444794939014992,
+          "15": 1.4313987967692243,
+          "16": 0.6491027320679429,
+          "2": 1.4535968581254095,
+          "3": 1.2035034790931523,
+          "4": 1.4662137415919547,
+          "5": 0.5387716901144092,
+          "6": 0.6577786722707586,
+          "7": 1.4492588308625616,
+          "8": 1.2489916065316868,
+          "9": 0.9112674110141437
+        },
+        "vegetarian": false
+      },
+      "sessions": {
+        "baseline": {
+          "cost_cents": 7265,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 37.26
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 136.45,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 17.79,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 18.27,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 52.02,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 19.58,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 18.09,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 31.1,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 25.18,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 17.05,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 55.0,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 19.35,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 19.85,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 55.67,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.8,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.0,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 35.13,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.97,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.75,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "browse",
+              "seconds": 53.35,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 25.18,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.63,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 14.21
+            }
+          ],
+          "method": "baseline",
+          "second_task": false,
+          "seconds": 720.68,
+          "selections": [
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 1
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 2
+            },
+            {
+              "item_id": "15",
+              "price_cents": 995,
+              "slot": 3
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 4
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 5
+            },
+            {
+              "item_id": "4",
+              "price_cents": 895,
+              "slot": 6
+            },
+            {
+              "item_id": "9",
+              "price_cents": 1195,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        },
+        "weeklies": {
+          "cost_cents": 6965,
+          "events": [
+            {
+              "completed": true,
+              "phase": "setup",
+              "seconds": 67.14
+            },
+            {
+              "completed": true,
+              "long_wait": false,
+              "phase": "generation_wait",
+              "seconds": 18.84
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 26.17,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 7.65,
+              "slot": 1
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 9.78,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "new_item_id": "6",
+              "old_item_id": "2",
+              "phase": "replacement_browse",
+              "seconds": 77.32,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 11.99,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 10.21,
+              "slot": 2
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 16.94,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 6.38,
+              "slot": 3
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.4,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 8.99,
+              "slot": 4
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 24.88,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 12.16,
+              "slot": 5
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 20.66,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "new_item_id": "10",
+              "old_item_id": "15",
+              "phase": "replacement_browse",
+              "seconds": 67.96,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 14.98,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 9.29,
+              "slot": 6
+            },
+            {
+              "completed": true,
+              "phase": "review",
+              "seconds": 40.47,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "new_item_id": "1",
+              "old_item_id": "2",
+              "phase": "replacement_browse",
+              "seconds": 85.55,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "replacement_review",
+              "seconds": 20.47,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "record",
+              "seconds": 11.75,
+              "slot": 7
+            },
+            {
+              "completed": true,
+              "phase": "budget_check",
+              "seconds": 31.99
+            }
+          ],
+          "method": "weeklies",
+          "second_task": true,
+          "seconds": 621.97,
+          "selections": [
+            {
+              "item_id": "2",
+              "price_cents": 895,
+              "slot": 1
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 2
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 3
+            },
+            {
+              "item_id": "13",
+              "price_cents": 895,
+              "slot": 4
+            },
+            {
+              "item_id": "6",
+              "price_cents": 1195,
+              "slot": 5
+            },
+            {
+              "item_id": "10",
+              "price_cents": 1095,
+              "slot": 6
+            },
+            {
+              "item_id": "1",
+              "price_cents": 795,
+              "slot": 7
+            }
+          ],
+          "stop_reason": "task_finished",
+          "valid_meals": 7
+        }
+      }
+    }
+  ],
+  "version": "seeded-planning-v1"
+}

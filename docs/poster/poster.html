@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEKLIES — Project 2 Showcase Poster</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg-dark: #0b0f19;
+    --card-bg: #151c2e;
+    --card-border: #24304d;
+    --accent-orange: #ff6b35;
+    --accent-green: #10b981;
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-bright: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .poster {
+    width: 1400px;
+    height: 900px;
+    background: radial-gradient(circle at 15% 15%, #1a233a 0%, #0b0f19 70%);
+    border: 3px solid #2d3b5d;
+    border-radius: 16px;
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--card-border);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-icon {
+    font-size: 48px;
+    background: linear-gradient(135deg, #ff6b35, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  h1 {
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--text-bright);
+    line-height: 1.1;
+  }
+
+  .tagline {
+    font-size: 16px;
+    color: var(--accent-orange);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .meta {
+    text-align: right;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .team-names {
+    color: var(--text-bright);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .doi-badge {
+    display: inline-block;
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-blue);
+    margin-top: 6px;
+  }
+
+  /* Grid Layout */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1.35fr 1.1fr;
+    gap: 20px;
+    flex-grow: 1;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title.orange { color: var(--accent-orange); }
+  .card-title.green { color: var(--accent-green); }
+  .card-title.blue { color: var(--accent-blue); }
+  .card-title.purple { color: var(--accent-purple); }
+
+  p, li {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #d1d5db;
+  }
+
+  ul {
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li {
+    padding-left: 14px;
+    position: relative;
+  }
+
+  li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--accent-orange);
+    font-weight: bold;
+  }
+
+  /* Metric Badges */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .stat-box {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent-green);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* M0 Results Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    margin-top: 6px;
+  }
+
+  th, td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #1f293d;
+  }
+
+  th {
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+
+  td.bold { font-weight: 700; color: var(--text-bright); }
+  td.pass { color: var(--accent-green); font-weight: 700; }
+
+  /* Milestone Pills */
+  .milestone-pill {
+    background: #0f172a;
+    border-left: 3px solid var(--accent-blue);
+    padding: 8px 12px;
+    border-radius: 4px 8px 8px 4px;
+    margin-bottom: 6px;
+  }
+
+  .milestone-pill.p3 {
+    border-left-color: var(--accent-purple);
+  }
+
+  .milestone-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-bright);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .milestone-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Footer & QR Codes */
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 2px solid var(--card-border);
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+
+  .qr-group {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .qr-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qr-box {
+    width: 60px;
+    height: 60px;
+    background: white;
+    border-radius: 6px;
+    padding: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .qr-box img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .qr-info h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+
+  .qr-info p {
+    font-size: 10.5px;
+    color: var(--text-muted);
+  }
+
+  .repo-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-blue);
+    font-weight: 600;
+  }
+
+  @media print {
+    body { padding: 0; background: none; }
+    .poster {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      page-break-after: avoid;
+    }
+    @page {
+      size: landscape;
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="poster">
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="logo-icon">🍽️</div>
+      <div>
+        <h1>WEEKLIES</h1>
+        <div class="tagline">Intelligent Budget-Constrained Meal Planning & Scheduled Delivery</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="team-names">Rohan Patel · Srikar Desemsetti · Alex Tanton · Kushal Upreti</div>
+      <div>CSC 510: Software Engineering — Fall 2026 — NC State University</div>
+      <div class="doi-badge">DOI: 10.5281/zenodo.23535676</div>
+    </div>
+  </header>
+
+  <!-- Content 3-Column Grid -->
+  <div class="grid">
+    
+    <!-- Left Column: The Problem, Market & M0 Risk-Killer Eval -->
+    <div class="col">
+      <div class="card">
+        <div class="card-title orange">🎯 The Problem & Market</div>
+        <p>Busy students and professionals spend <strong>45+ minutes every week</strong> coordinating dinners across apps, calculating budgets manually, and filtering dietary constraints.</p>
+        <ul style="margin-top: 8px;">
+          <li><strong>Over-budget creep:</strong> Small miscalculations exceed weekly food budgets.</li>
+          <li><strong>Rigid subscriptions:</strong> Standard meal boxes offer all-or-nothing plans without granular single-item customization.</li>
+          <li><strong>Allergen safety:</strong> Cross-restaurant allergen checking is tedious and error-prone.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="flex-grow: 1;">
+        <div class="card-title green">🔬 M0: The Risk-Killer Eval</div>
+        <p style="font-size: 11.5px; margin-bottom: 8px;">Hypothesis: Intelligent meal planning saves <strong>&ge; 30% time</strong> while maintaining <strong>&ge; 80% budget success</strong> with a <strong>&ge; 20pp lift</strong> over manual baseline.</p>
+        
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Target</th><th>Result</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Time Reduction</td><td>&ge; 30%</td><td>43.1%</td><td class="pass">PASS</td></tr>
+            <tr><td>Budget Success</td><td>&ge; 80%</td><td>88.0%</td><td class="pass">PASS</td></tr>
+            <tr><td>Baseline Lift</td><td>&ge; 20 pp</td><td>+26.0 pp</td><td class="pass">PASS</td></tr>
+            <tr><td>Pairs Evaluated</td><td>N &ge; 10</td><td>N = 50</td><td class="pass">PASS</td></tr>
+          </tbody>
+        </table>
+
+        <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 10px;">
+          Wired directly to GitHub Actions CI via <code>scripts/eval_m0.py</code> and reproducible across 5 seed sweeps.
+        </p>
+      </div>
+    </div>
+
+    <!-- Center Column: Architecture & Completed Milestones (M1-M4) -->
+    <div class="col">
+      <div class="card" style="flex-grow: 1;">
+        <div class="card-title blue">🏆 What Works Today (Project 2 Milestones)</div>
+        
+        <div class="milestone-pill">
+          <div class="milestone-name"><span>M1: Dynamic Single-Meal Swaps</span><span style="color: var(--accent-green);">UC29</span></div>
+          <div class="milestone-desc">Replace individual calendar slots dynamically without disrupting the weekly plan. Validates restaurant operating hours & allergen safety server-side.</div>
+        </div>
+
+        <div class="milestone-pill">
+          <div class="milestone-name"><span>M2: Exact-Cents Budget Generation</span><span style="color: var(--accent-green);">AI ENGINE</span></div>
+          <div class="milestone-desc">Pre-filters candidate meals in integer cents to prevent floating-point drift. Guarantees weekly item sums strictly conform to customer budget caps.</div>
+        </div>
+
+        <div class="milestone-pill">
+          <div class="milestone-name"><span>M3: 5-Stage Order Progress Stepper</span><span style="color: var(--accent-green);">UC13</span></div>
+          <div class="milestone-desc">Visual lifecycle stepper (<code>Ordered</code> ➔ <code>Accepted</code> ➔ <code>Preparing</code> ➔ <code>Ready</code> ➔ <code>Delivered</code>) on customer profile with cancellation resilience.</div>
+        </div>
+
+        <div class="milestone-pill">
+          <div class="milestone-name"><span>M4: Automated Cypress E2E UI Harness</span><span style="color: var(--accent-green);">17 SPECS</span></div>
+          <div class="milestone-desc">Full browser regression test harness simulating authentic user checkout, calendar manipulation, and restaurant order fulfillment in CI.</div>
+        </div>
+
+        <!-- Repository Health Stats -->
+        <div class="stats-row" style="margin-top: 12px;">
+          <div class="stat-box">
+            <div class="stat-number">341</div>
+            <div class="stat-label">Commits</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">466+</div>
+            <div class="stat-label">Tests Passed</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">85%</div>
+            <div class="stat-label">Coverage</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Project 3 Roadmap & Why Inherit This Codebase -->
+    <div class="col">
+      <div class="card">
+        <div class="card-title purple">🚀 Project 3 Roadmap: Next 4 Milestones</div>
+        
+        <div class="milestone-pill p3">
+          <div class="milestone-name"><span>P3-M1: Household Calendars & Split Billing</span></div>
+          <div class="milestone-desc">Merge dietary profiles across roommates; automated bill splitting via Stripe.</div>
+        </div>
+
+        <div class="milestone-pill p3">
+          <div class="milestone-name"><span>P3-M2: Real-Time WebSockets & Driver GPS</span></div>
+          <div class="milestone-desc">Upgrade M3 stepper with live driver map dispatch and WebSocket updates.</div>
+        </div>
+
+        <div class="milestone-pill p3">
+          <div class="milestone-name"><span>P3-M3: Macro & Nutrition Optimization</span></div>
+          <div class="milestone-desc">USDA FoodData API integration to optimize for protein, carbs, and calorie targets.</div>
+        </div>
+
+        <div class="milestone-pill p3">
+          <div class="milestone-name"><span>P3-M4: Hybrid Meal + Grocery Basket Dispatch</span></div>
+          <div class="milestone-desc">Swap restaurant dinners for raw ingredient grocery kits with recipe cards.</div>
+        </div>
+      </div>
+
+      <div class="card" style="flex-grow: 1;">
+        <div class="card-title green">💎 Why Inherit Weeklies?</div>
+        <ul>
+          <li><strong>Clean, Modular Architecture:</strong> Flask blueprints, isolated business logic helpers, pure testable functions.</li>
+          <li><strong>Rock-Solid Test Suite:</strong> 72 test files + Cypress E2E. Zero guess work for new features.</li>
+          <li><strong>Turnkey Setup:</strong> <code>pip install -r requirements.txt && flask run</code> works out of the box on Windows, Mac, and Linux.</li>
+          <li><strong>Exemplary Documentation:</strong> 29 use cases with step-by-step worked examples.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer with QR Codes -->
+  <footer>
+    <div class="qr-group">
+      <div class="qr-item">
+        <div class="qr-box">
+          <!-- QR code generating API pointing to walkthrough video -->
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://github.com/rdpatel2/Weeklies#readme" alt="Demo QR">
+        </div>
+        <div class="qr-info">
+          <h4>Feature Walkthrough</h4>
+          <p>Scan for 3m Video Demo</p>
+        </div>
+      </div>
+
+      <div class="qr-item">
+        <div class="qr-box">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://github.com/rdpatel2/Weeklies" alt="Repo QR">
+        </div>
+        <div class="qr-info">
+          <h4>GitHub Repository</h4>
+          <p>Inspect Code & History</p>
+        </div>
+      </div>
+
+      <div class="qr-item">
+        <div class="qr-box">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://github.com/rdpatel2/Weeklies/discussions" alt="Chat QR">
+        </div>
+        <div class="qr-info">
+          <h4>Discussions & Chat</h4>
+          <p>Team Collaboration Log</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: right;">
+      <div class="repo-link">github.com/rdpatel2/Weeklies</div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Licensed under MIT · Zenodo DOI Registered</div>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
