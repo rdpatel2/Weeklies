@@ -42,11 +42,16 @@ site/
 proj2/site/
 *.pdf
 
-# Databases (important!)
+# Databases
 proj2/CSC510_DB.db
 *.db
 *.sqlite
 *.sqlite3
+*.db.backup.*
+
+# Backup files
+*.bak
+*.backup
 
 # Logs
 *.log
@@ -59,3 +64,23 @@ proj2/CSC510_DB.db
 coverage.xml
 report.xml
 *.tmp
+
+# Cypress & Node
+node_modules/
+proj2/node_modules/
+cypress/screenshots/
+cypress/videos/
+proj2/cypress/screenshots/
+proj2/cypress/videos/
+# Node / Cypress
+node_modules/
+proj2/node_modules/
+proj2/cypress/videos/
+proj2/cypress/screenshots/
+proj2/cypress/downloads/
+package-lock.json
+proj2/package-lock.json
+
+# Worktrees
+.worktrees/
+.claude/

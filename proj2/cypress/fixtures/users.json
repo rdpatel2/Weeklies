@@ -1,0 +1,30 @@
+{
+  "validUser": {
+    "email": "testuser@example.com",
+    "password": "password123",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phone": "9195550101"
+  },
+  "secondUser": {
+    "email": "seconduser@example.com",
+    "password": "password123",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "phone": "9195550102"
+  },
+  "newUser": {
+    "fname": "Alex",
+    "lname": "Tester",
+    "email": "alextester@example.com",
+    "phone": "9195550999",
+    "password": "strongPassword123",
+    "confirm_password": "strongPassword123",
+    "preferences": "Vegan",
+    "allergies": "Shellfish"
+  },
+  "invalidUser": {
+    "email": "wrong@example.com",
+    "password": "wrongpassword"
+  }
+}

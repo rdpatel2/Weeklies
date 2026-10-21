@@ -1,4 +1,4 @@
-﻿name: CI
+name: CI
 
 on:
   push:
@@ -66,6 +66,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      # Only expose availability here; the optional gist action receives the token.
+      HAS_GIST_TOKEN: ${{ secrets.GIST_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +111,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Generate test badge
-        if: always()
+        if: always() && env.HAS_GIST_TOKEN == 'true'
         working-directory: proj2
         run: |
           # Extract test results from pytest output
@@ -128,10 +131,10 @@ jobs:
           echo "badge=${BADGE}" >> $GITHUB_OUTPUT
 
       - name: Update badge gist
-        if: always()
+        if: always() && env.HAS_GIST_TOKEN == 'true'
         uses: actions/github-script@v7
         env:
-          GIST_ID: 0ab63df1c29ad707ee2f0c5bdbf46383
+          GIST_ID: 6d51e7a5086ac9b427e43f47f5d7d29e
           BADGE_FILE: tests-badge.json
         with:
           github-token: ${{ secrets.GIST_TOKEN }}
@@ -155,3 +158,51 @@ jobs:
             } catch (err) {
               console.log("Badge update failed (non-critical):", err.message);
             }
+
+  cypress:
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python dependencies
+        working-directory: proj2
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt --no-cache-dir
+
+      - name: Install Cypress dependencies
+        working-directory: proj2
+        run: npm install
+
+      - name: Seed database for Cypress
+        working-directory: proj2
+        run: python scripts/cypress_seed.py
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: proj2
+          start: python -m flask run --port 5000
+          wait-on: "http://127.0.0.1:5000"
+          config: baseUrl=http://127.0.0.1:5000
+        env:
+          FLASK_APP: Flask_app.py
+          PYTHONPATH: .
+
+      - name: Upload Cypress screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: proj2/cypress/screenshots
+
