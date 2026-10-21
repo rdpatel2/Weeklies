@@ -123,7 +123,7 @@ def evaluate(data: bytes) -> dict:
     }
     return {
         "policy": POLICY,
-        "input_sha256": hashlib.sha256(data).hexdigest(),
+        "input_sha256": hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest(),
         "data_kind": next(iter(kinds)),
         "interpretation": (
             "Synthetic instrument demonstration; no real-user benefit established."
@@ -155,7 +155,7 @@ def main() -> int:
         rendered = json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n"
         if args.output:
             args.output.parent.mkdir(parents=True, exist_ok=True)
-            args.output.write_text(rendered, encoding="utf-8")
+            args.output.write_text(rendered, encoding="utf-8", newline="\n")
     except (OSError, ValueError) as exc:
         print(f"M0 input/output error: {exc}", file=sys.stderr)
         return 2

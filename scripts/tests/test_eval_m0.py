@@ -165,7 +165,7 @@ class EvaluationTests(unittest.TestCase):
             capture_output=True, check=True,
         )
         data = (ROOT / "evals/m0/synthetic.csv").read_bytes()
-        self.assertEqual(result.stdout, data)
+        self.assertEqual(result.stdout.replace(b"\r\n", b"\n"), data.replace(b"\r\n", b"\n"))
         report = evaluate(data)
         self.assertEqual(report, json.loads((ROOT / "evals/m0/result.json").read_text()))
         self.assertEqual(report["verdict"], "FAIL")
