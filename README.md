@@ -4,7 +4,7 @@
 [![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)]()
 [![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE.md)
 [![GitHub last commit](https://img.shields.io/github/last-commit/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/commits)
 [![GitHub issues](https://img.shields.io/github/issues/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/pulls)
@@ -113,11 +113,11 @@ Weeklies/
 │
 └── 📖 Documentation
     ├── README.md                      # This file
-    ├── INSTALLATION.md                # Setup guide
+    ├── INSTALL.md                      # Setup guide
     ├── CONTRIBUTING.md                # Contribution guidelines
-    ├── CODE_OF_CONDUCT.md             # Community standards
+    ├── CODE-OF-CONDUCT.md             # Community standards
     ├── THIRD_PARTY_LIBRARIES.md       # Dependency licenses
-    └── LICENSE                        # MIT License
+    └── LICENSE.md                     # MIT License
 ```
 
 ---
@@ -140,14 +140,14 @@ Auto-generated API documentation is available through **pdoc** and deployed auto
 You can view it online (via GitHub Pages) or build it locally:
 
 🔗 **Live Docs:** [Weeklies Documentation](https://rdpatel2.github.io/Weeklies/)  
-🧰 **Local Build:** See [INSTALLATION.md](./INSTALLATION.md#documentation)
+🧰 **Local Build:** See [INSTALL.md](./INSTALL.md#documentation)
 
 ---
 
 ## 🚀 Installation & Usage
 
 Setup, environment creation, and execution instructions have been moved to a dedicated guide:  
-➡️ **[See Installation Guide →](./INSTALLATION.md)**
+➡️ **[See Installation Guide →](./INSTALL.md)**
 
 ---
 
@@ -178,13 +178,13 @@ Setup, environment creation, and execution instructions have been moved to a ded
 
 ## 🤝 Contributing
 We welcome contributions from everyone.  
-Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting pull requests.
+Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE-OF-CONDUCT.md) before submitting pull requests.
 
 ---
 
 ## 📜 License
 Distributed under the MIT License.  
-See [LICENSE](./LICENSE) for more information.
+See [LICENSE.md](./LICENSE.md) for more information.
 
 ---
 
