@@ -56,14 +56,18 @@ Weeklies delivered five major milestones spanning user-facing features, AI optim
 ---
 
 ### Milestone 3 (M3): Order Lifecycle & Visual Progress Stepper (UC13)
-* **Goal**: Provide transparent, real-time visibility into an order's fulfillment journey from placement to delivery.
+* **Goal**: Let customers see at a glance how far each order has progressed from placement to delivery, and what stages remain, instead of a single status word.
 * **Key Capabilities**:
-  - 5-stage lifecycle state machine: `Placed` ➔ `Accepted` ➔ `Preparing` ➔ `Out for Delivery` ➔ `Delivered` (with dedicated handling for `Cancelled` and unknown states).
-  - Visual Stepper Component: Styled progress bar rendered directly on the user's `/profile` page with active state highlights and completion checkmarks.
-  - Robust status mapping helper in `proj2/sqlQueries.py` and `proj2/Flask_app.py`.
+  - 5-stage order lifecycle: `Ordered` ➔ `Accepted` ➔ `Preparing` ➔ `Ready` ➔ `Delivered`, with `Cancelled` as a side-exit from `Ordered`/`Accepted`/`Preparing`. Transitions are enforced by the restaurant-side accept/prepare/ready/deliver/reject routes; the customer view maps the stored status onto these stages.
+  - Visual Stepper Component: a five-dot progress bar on the customer's `/profile` page. Completed stages are filled green, the current stage is highlighted, and later stages are hollow. Cancelled orders show the whole bar faded, without claiming which stages were reached.
+  - Distinct status badges for all six statuses. Previously `Accepted` and `Ready` rendered as unstyled text; unknown or missing statuses now show a neutral badge instead of breaking the row.
+  - Status mapping helper [`proj2/order_progress.py`](../proj2/order_progress.py) (pure function, no database access), called from the `/profile` route in `proj2/Flask_app.py` and rendered by `proj2/templates/profile.html`.
 * **Engineering Evidence**:
-  - Tested across edge cases (immediate cancellation, non-linear status transitions) in `proj2/tests/unit/test_order_progress.py`.
+  - 48 unit tests in [`proj2/sef26tests/test_uc13_order_progress.py`](../proj2/sef26tests/test_uc13_order_progress.py) and 31 page-rendering tests in [`proj2/sef26tests/test_uc13_track_orders.py`](../proj2/sef26tests/test_uc13_track_orders.py). They cover every status plus failure cases: cancelled, unknown, NULL or blank, numeric, mixed-case, and HTML in the status value (rendered escaped). `order_progress.py` has 100% line and branch coverage.
   - Documented under UC13 in [`use-cases.md`](../use-cases.md).
+* **Known limitations**:
+  - No status history: the `Order` table stores only the current status, so the page cannot show *when* each stage was reached, or how far a cancelled order got. Recording this needs a status-history table written by the restaurant routes.
+  - No live updates: customers see a status change after reloading `/profile`.
 
 ---
 
@@ -86,7 +90,7 @@ Weeklies was engineered specifically to be modular, testable, and straightforwar
 | Milestone | Title | Description | Foundation in Weeklies |
 |---|---|---|---|
 | **P3-M1** | **Multi-User Household Calendars & Split Billing** | Allow family members or roommates to link accounts, merge dietary restrictions into a single calendar, and split order costs automatically via Stripe or simulated balance. | Leverages current user profiles, calendar persistence, and allergen filtering. |
-| **P3-M2** | **Live Driver Tracking & Real-Time WebSockets** | Upgrade the simulated order progress stepper (M3) into a live dispatch system with real-time driver coordinates on a Leaflet/Mapbox map and WebSocket notifications. | Builds upon the 5-stage order lifecycle state machine in `proj2/sqlQueries.py`. |
+| **P3-M2** | **Live Driver Tracking & Real-Time WebSockets** | Upgrade the simulated order progress stepper (M3) into a live dispatch system with real-time driver coordinates on a Leaflet/Mapbox map and WebSocket notifications. | Builds upon the 5-stage order lifecycle in `proj2/order_progress.py` and the restaurant status-transition routes in `proj2/Flask_app.py`; a status-history table (see M3 known limitations) is the natural first step. |
 | **P3-M3** | **Nutritional & Macro Optimization Engine** | Extend budget-constrained meal generation (M2) to optimize for calories, protein, carbs, and sodium targets using the USDA FoodData Central API. | Fits directly into the existing candidate ranking and selection pipeline in `proj2/menu_generation.py`. |
 | **P3-M4** | **Hybrid Prepared Meal + Grocery Basket Dispatch** | Allow users to swap a prepared restaurant dinner for a raw ingredient grocery basket with automated recipe cards and delivery dispatch. | Integrates with single-meal swap architecture (M1) and PDF receipt generation (`proj2/pdf_receipt.py`). |
 
