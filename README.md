@@ -1,10 +1,14 @@
+
 # 🍽️ WEEKLIES — Intelligent Meal Planning and Delivery System
 
 [![CI](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
 [![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)]()
+![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rdpatel2/6d51e7a5086ac9b427e43f47f5d7d29e/raw/tests-badge.json&cacheSeconds=0)
+[![codecov](https://codecov.io/gh/rdpatel2/Weeklies/branch/main/graph/badge.svg)](https://codecov.io/gh/rdpatel2/Weeklies)
 [![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE.md)
+[![Cypress](https://img.shields.io/badge/cypress-tested-brightgreen?logo=cypress&logoColor=white)](https://www.cypress.io/)
+[![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE)
 [![GitHub last commit](https://img.shields.io/github/last-commit/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/commits)
 [![GitHub issues](https://img.shields.io/github/issues/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/pulls)
@@ -12,7 +16,8 @@
 [![Contributors](https://img.shields.io/github/contributors/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/graphs/contributors)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Lint: ruff](https://img.shields.io/badge/lint-ruff-46a2f1?logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
-[![DOI](https://img.shields.io/badge/DOI-pending-lightgrey.svg)]()
+[![DOI](https://zenodo.org/badge/1351756287.svg)](https://doi.org/10.5281/zenodo.23535676)
+
 ---
 
 ## 🧠 Project Overview
