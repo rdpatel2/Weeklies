@@ -112,10 +112,14 @@ class SimulationTests(unittest.TestCase):
                 capture_output=True,
                 check=True,
             )
-            self.assertEqual(result.stdout, (ROOT / "evals/m0/synthetic.csv").read_bytes())
+            self.assertEqual(
+                result.stdout.replace(b"\r\n", b"\n"),
+                (ROOT / "evals/m0/synthetic.csv").read_bytes().replace(b"\r\n", b"\n"),
+            )
             for actual in (trace, sweep):
                 self.assertEqual(
-                    actual.read_bytes(), (ROOT / "evals/m0" / actual.name).read_bytes()
+                    actual.read_bytes().replace(b"\r\n", b"\n"),
+                    (ROOT / "evals/m0" / actual.name).read_bytes().replace(b"\r\n", b"\n"),
                 )
             report = json.loads(sweep.read_text())
             self.assertEqual([run["seed"] for run in report["runs"]], list(range(510, 515)))

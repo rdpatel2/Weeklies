@@ -235,8 +235,8 @@ def simulate(seed=510, participants=10, catalog_path=CATALOG):
         seed=seed,
         participants=participants,
         assumptions=ASSUMPTIONS,
-        catalog_sha256=hashlib.sha256(catalog_path.read_bytes()).hexdigest(),
-        input_sha256=hashlib.sha256(render_csv(rows).encode()).hexdigest(),
+        catalog_sha256=hashlib.sha256(catalog_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
+        input_sha256=hashlib.sha256(render_csv(rows).encode().replace(b"\r\n", b"\n")).hexdigest(),
         catalog=catalog,
         traces=traces,
     )
@@ -260,7 +260,11 @@ def sensitivity(seed=510, participants=10, catalog_path=CATALOG):
 
 
 def write_json(path, value):
-    path.write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n")
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
 
 def main():
@@ -279,7 +283,7 @@ def main():
             write_json(
                 args.sensitivity_output, sensitivity(args.seed, args.participants, args.catalog)
             )
-        sys.stdout.write(render_csv(rows))
+        sys.stdout.buffer.write(render_csv(rows).encode("utf-8"))
     except (OSError, ValueError, KeyError, TypeError) as error:
         print(f"Simulation error: {error}", file=sys.stderr)
         return 2
