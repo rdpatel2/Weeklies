@@ -65,6 +65,9 @@ Weeklies delivered five major milestones spanning user-facing features, AI optim
 * **Engineering Evidence**:
   - 48 unit tests in [`proj2/sef26tests/test_uc13_order_progress.py`](../proj2/sef26tests/test_uc13_order_progress.py) and 31 page-rendering tests in [`proj2/sef26tests/test_uc13_track_orders.py`](../proj2/sef26tests/test_uc13_track_orders.py). They cover every status plus failure cases: cancelled, unknown, NULL or blank, numeric, mixed-case, and HTML in the status value (rendered escaped). `order_progress.py` has 100% line and branch coverage.
   - Documented under UC13 in [`use-cases.md`](../use-cases.md).
+* **Known limitations**:
+  - No status history: the `Order` table stores only the current status, so the page cannot show *when* each stage was reached, or how far a cancelled order got. Recording this needs a status-history table written by the restaurant routes.
+  - No live updates: customers see a status change after reloading `/profile`.
 
 ---
 
