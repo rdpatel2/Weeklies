@@ -2674,13 +2674,17 @@ def swap_meal_options():
     )
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Flask App for Meal Planner")
     parser.add_argument(
         "--host", type=str, default="127.0.0.1", help="Host to run the Flask app on"
     )
     parser.add_argument("--port", type=int, default=5000, help="Port to run the Flask app on")
-    return parser.parse_args()
+    # Off by default: the Werkzeug debugger lets anyone who can reach the page run code.
+    parser.add_argument(
+        "--debug", action="store_true", help="Enable auto-reload and the interactive debugger"
+    )
+    return parser.parse_args(argv)
 
 
 if __name__ == "__main__":
@@ -2694,4 +2698,4 @@ if __name__ == "__main__":
     User: usr_id,first_name,last_name,email,phone,password_HS,wallet,preferences,allergies,generated_menu
     """
     args = parse_args()
-    app.run(host=args.host, port=args.port, debug=True)
+    app.run(host=args.host, port=args.port, debug=args.debug)
