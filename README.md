@@ -137,6 +137,7 @@ Weeklies/
     ├── CODE-OF-CONDUCT.md             # Community standards
     ├── THIRD_PARTY_LIBRARIES.md       # Dependency licenses
     ├── AI_DISCLOSURE.md               # AI use & verification disclosure
+    ├── RUBRIC.md                      # Self-assessed repository rubric
     └── LICENSE.md                     # MIT License
 ```
 
