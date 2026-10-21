@@ -59,6 +59,7 @@ proj2/CSC510_DB.db
 # Environment / secrets
 .env
 .env.*
+!.env.example
 
 # CI outputs / temporary files
 coverage.xml
