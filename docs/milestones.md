@@ -58,7 +58,7 @@ Weeklies delivered five major milestones spanning user-facing features, AI optim
 ### Milestone 3 (M3): Order Lifecycle & Visual Progress Stepper (UC13)
 * **Goal**: Provide transparent, real-time visibility into an order's fulfillment journey from placement to delivery.
 * **Key Capabilities**:
-  - 5-stage lifecycle state machine: `Placed` ➔ `Accepted` ➔ `Preparing` ➔ `Out for Delivery` ➔ `Delivered` (with dedicated handling for `Cancelled` and unknown states).
+  - 5-stage order lifecycle: `Ordered` ➔ `Accepted` ➔ `Preparing` ➔ `Ready` ➔ `Delivered`, with `Cancelled` as a side-exit from `Ordered`/`Accepted`/`Preparing`. Transitions are enforced by the restaurant-side accept/prepare/ready/deliver/reject routes; the customer view maps the stored status onto these stages.
   - Visual Stepper Component: Styled progress bar rendered directly on the user's `/profile` page with active state highlights and completion checkmarks.
   - Robust status mapping helper in `proj2/sqlQueries.py` and `proj2/Flask_app.py`.
 * **Engineering Evidence**:
