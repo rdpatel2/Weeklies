@@ -1,0 +1,28 @@
+# CodeRabbit Configuration File
+# Reference: https://coderabbit.ai/docs/configure-coderabbit
+
+version: "2"
+language: "en-US"
+tone_instructions: "Provide concise, actionable code review feedback focusing on correctness, security, and test coverage."
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "development"
+  path_instructions:
+    - path: "proj2/**"
+      instructions: "Ensure Python code follows PEP 8, includes appropriate docstrings, and does not hardcode database secrets or sensitive keys."
+    - path: "proj2/tests/**"
+      instructions: "Verify that new features have corresponding unit, integration, or E2E tests with assertions testing both success and failure cases."
+    - path: "scripts/**"
+      instructions: "Ensure utility scripts maintain cross-platform compatibility (Linux and Windows) with robust error handling and CLI arguments."
+
+chat:
+  auto_reply: true
