@@ -78,6 +78,10 @@
       <div class="greet" style="color: var(--muted); font-weight:600;">Welcome, {{ username }}.</div>
     </div>
 
+    {% if swap_notice %}
+      <div class="flash {{ swap_notice[0] }}" role="status">{{ swap_notice[1] }}</div>
+    {% endif %}
+
     {% set meal_names = {1: 'Breakfast', 2: 'Lunch', 3: 'Dinner'} %}
     {% set meal_short = {1: 'B', 2: 'L', 3: 'D'} %}
     {% set has_any = today_menu and (today_menu|length) %}

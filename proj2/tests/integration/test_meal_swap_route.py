@@ -292,3 +292,34 @@ def test_options_invalid_slot(logged_in, plan, date, meal):
 
 def test_options_requires_login(client):
     assert options(client, MONDAY, 1).status_code == 401
+
+
+# ---- Calendar banner and controls ----
+
+
+def test_calendar_shows_swap_buttons(logged_in, plan):
+    html = logged_in.get("/2025/11").get_data(as_text=True)
+    assert html.count('class="swap-btn"') == 4
+    assert 'data-date="2025-11-03"' in html
+    assert 'id="swapModal"' in html
+
+
+def test_calendar_success_banner(logged_in, plan):
+    html = logged_in.get("/2025/11?swapped=1").get_data(as_text=True)
+    assert "Meal swapped" in html
+
+
+def test_calendar_error_banner(logged_in, plan):
+    html = logged_in.get("/2025/11?swap_error=allergen").get_data(as_text=True)
+    assert "contains one of your allergens" in html
+
+
+def test_calendar_unknown_error_code_is_generic(logged_in, plan):
+    html = logged_in.get("/2025/11?swap_error=<script>").get_data(as_text=True)
+    assert "That meal could not be swapped." in html
+    assert "<script>" not in html.split('class="flash')[1].split("</div>")[0]
+
+
+def test_calendar_without_swap_params_has_no_banner(logged_in, plan):
+    html = logged_in.get("/2025/11").get_data(as_text=True)
+    assert 'class="flash' not in html
