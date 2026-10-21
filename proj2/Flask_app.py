@@ -2375,16 +2375,65 @@ def order_receipt(ord_id: int):
     )
 
 
+# Columns the database viewer never selects. Password hashes can be cracked offline,
+# so they must not reach the page (User and Restaurant both have password_HS).
+DB_VIEW_HIDDEN_COLUMNS = frozenset({"password_HS"})
+
+
+def _quote_ident(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+# The database viewer is a developer tool: it shows every user's email and phone,
+# so it is off unless explicitly enabled (team decision, option A on the /db issue).
+DB_VIEW_ENV = "WEEKLIES_ENABLE_DB_VIEW"
+
+
+def env_flag(name, environ=None) -> bool:
+    """
+    Read a boolean environment variable.
+    Args:
+        name: Variable name.
+        environ: Mapping to read from (defaults to os.environ; injectable for tests).
+    Returns:
+        bool: True for 1/true/yes/on (any case, surrounding spaces ignored), else False.
+    """
+    environ = os.environ if environ is None else environ
+    return (environ.get(name) or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+app.config["DB_VIEW_ENABLED"] = env_flag(DB_VIEW_ENV)
+
+
+def db_view_enabled() -> bool:
+    """
+    Whether /db is available: when WEEKLIES_ENABLE_DB_VIEW is set, and always under
+    pytest (app.testing) so the existing viewer tests keep running.
+    Returns:
+        bool: True if the viewer should be served.
+    """
+    return bool(app.config.get("DB_VIEW_ENABLED")) or app.testing
+
+
+@app.context_processor
+def inject_db_view_enabled():
+    """Expose db_view_enabled to templates so the nav only links to /db when it is served."""
+    return {"db_view_enabled": db_view_enabled()}
+
+
 # Database viewer route (uses helpers only)
 @app.route("/db")
 def db_view():
     """
-    Display a simple, paginated database table viewer.
+    Display a simple, paginated database table viewer (developer tool).
     Args:
         None
     Returns:
-        Response: HTML page showing rows/columns for a selected table (requires login).
+        Response: HTML page showing rows/columns for a selected table (requires login);
+        404 when the viewer is disabled.
     """
+    if not db_view_enabled():
+        abort(404)
     if session.get("Username") is None:
         return redirect(url_for("login"))
 
@@ -2410,9 +2459,16 @@ def db_view():
         offset = (page - 1) * per_page
 
         col_rows = fetch_all(conn, f'PRAGMA table_info("{table}")')
-        columns = [r[1] for r in col_rows] if col_rows else []
+        columns = [r[1] for r in col_rows or [] if r[1] not in DB_VIEW_HIDDEN_COLUMNS]
 
-        rows = fetch_all(conn, f'SELECT * FROM "{table}" LIMIT ? OFFSET ?', (per_page, offset))
+        # Select only the visible columns, so hidden values never leave the database.
+        if columns:
+            select_list = ", ".join(_quote_ident(c) for c in columns)
+            rows = fetch_all(
+                conn, f'SELECT {select_list} FROM "{table}" LIMIT ? OFFSET ?', (per_page, offset)
+            )
+        else:
+            rows = []
     finally:
         close_connection(conn)
 
