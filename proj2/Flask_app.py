@@ -11,8 +11,17 @@ from datetime import timedelta, date, datetime
 from functools import wraps
 from proj2.pdf_receipt import generate_order_receipt_pdf
 from proj2.menu_generation import MenuGenerator
+from proj2.meal_swap import (
+    SlotNotFoundError,
+    find_slot_item,
+    list_swap_options,
+    load_swap_item,
+    replace_menu_slot,
+    slot_weekday_and_time,
+    swap_rejection,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort
+from flask import Flask, render_template, url_for, redirect, request, session, send_file, abort, make_response
 
 # Use ONLY these helpers for DB access
 from proj2.sqlQueries import (
@@ -347,6 +356,20 @@ def build_calendar_cells(gen_map, year, month, items_by_id):
     return cells
 
 
+## Banner text for /?swap_error=<code> after a form-based swap
+SWAP_ERROR_MESSAGES = {
+    "invalid_slot": "That meal slot is not valid.",
+    "invalid_item": "Choose an item to swap in.",
+    "slot_not_found": "There is no planned meal in that slot.",
+    "same_item": "That item is already planned for this slot.",
+    "item_not_found": "That menu item does not exist.",
+    "out_of_stock": "That item is out of stock.",
+    "restaurant_unavailable": "That restaurant is not currently taking orders.",
+    "restaurant_closed": "That restaurant is closed at that meal time.",
+    "allergen": "That item contains one of your allergens.",
+}
+
+
 # ---------------------- Routes ----------------------
 
 
@@ -404,8 +427,17 @@ def index(year, month):
     prev_m = (cur.replace(day=1) - timedelta(days=1)).replace(day=1)
     next_m = (cur.replace(day=28) + timedelta(days=10)).replace(day=1)
 
+    swap_notice = None
+    if request.args.get("swapped"):
+        swap_notice = ("success", "Meal swapped. The rest of your plan is unchanged.")
+    elif request.args.get("swap_error"):
+        swap_notice = ("danger", SWAP_ERROR_MESSAGES.get(
+            request.args.get("swap_error"), "That meal could not be swapped."
+        ))
+
     return render_template(
         "index.html",
+        swap_notice=swap_notice,
         username=session["Username"],
         month_name=calendar.month_name[month],
         month=month,
@@ -500,14 +532,8 @@ def restaurant_required(f):
         if not session.get("restaurant_mode") or not session.get("rtr_id"):
             return redirect(url_for("restaurant_login"))
 
-        # Call the route function
-        response = f(*args, **kwargs)
-
-        # Normalize strings, tuples, and other valid Flask return values to a
-        # response object before adding headers.
-        from flask import make_response
-
-        response = make_response(response)
+        # Call the route function and normalize str / (body, status) tuples into a Response
+        response = make_response(f(*args, **kwargs))
 
         # Add cache-control headers to prevent browser caching
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
@@ -2419,6 +2445,145 @@ def generate_menu():
             "number_of_days": number_of_days
         })
     return redirect(url_for('index'))
+
+
+@app.route("/menu/swap", methods=["POST"])
+def swap_meal():
+    """
+    Replace the item in one date/meal slot of the logged-in user's plan.
+
+    Accepts JSON {"date", "meal", "itm_id"} or the same form fields. The replacement must
+    be in stock, at an open restaurant that serves that meal time, and free of the
+    allergens stored on the user's account. Every other slot is left unchanged.
+    """
+    want_json = request.is_json
+    payload = (request.get_json(silent=True) or {}) if want_json else request.form
+
+    def _fail(code, message, status):
+        if want_json:
+            return jsonify({"ok": False, "error": code, "message": message}), status
+        return redirect(url_for("index", swap_error=code))
+
+    if session.get("Username") is None:
+        if want_json:
+            return jsonify({"ok": False, "error": "login_required"}), 401
+        return redirect(url_for("login"))
+
+    slot_date = str(payload.get("date") or "").strip()
+    try:
+        meal = int(payload.get("meal"))
+        slot_weekday_and_time(slot_date, meal)
+    except (TypeError, ValueError):
+        return _fail("invalid_slot", "Provide a YYYY-MM-DD date and a meal of 1, 2, or 3.", 400)
+    try:
+        itm_id = int(payload.get("itm_id"))
+    except (TypeError, ValueError):
+        return _fail("invalid_item", "Provide the itm_id of the replacement item.", 400)
+
+    conn = create_connection(db_file)
+    try:
+        user = fetch_one(
+            conn,
+            'SELECT usr_id, allergies, generated_menu FROM "User" WHERE email = ?',
+            (session.get("Email"),),
+        )
+        if not user:
+            return redirect(url_for("logout"))
+        usr_id, allergies, menu = user[0], user[1] or "", user[2] or ""
+
+        current_itm_id = find_slot_item(menu, slot_date, meal)
+        if current_itm_id is None:
+            return _fail("slot_not_found", "There is no planned meal in that slot.", 404)
+        if current_itm_id == itm_id:
+            return _fail("same_item", "That item is already planned for this slot.", 400)
+
+        rejection = swap_rejection(load_swap_item(conn, itm_id), allergies, slot_date, meal)
+        if rejection:
+            code, message = rejection
+            return _fail(code, message, 404 if code == "item_not_found" else 409)
+
+        try:
+            updated_menu = replace_menu_slot(menu, slot_date, meal, itm_id)
+        except SlotNotFoundError:
+            return _fail("slot_not_found", "There is no planned meal in that slot.", 404)
+        execute_query(
+            conn, 'UPDATE "User" SET generated_menu = ? WHERE usr_id = ?', (updated_menu, usr_id)
+        )
+    finally:
+        close_connection(conn)
+
+    session["GeneratedMenu"] = updated_menu
+
+    if want_json:
+        return jsonify(
+            {
+                "ok": True,
+                "date": slot_date,
+                "meal": meal,
+                "previous_itm_id": current_itm_id,
+                "itm_id": itm_id,
+                "generated_menu": updated_menu,
+            }
+        )
+    year, month, _ = slot_date.split("-")
+    return redirect(url_for("index", year=int(year), month=int(month), swapped=1))
+
+
+@app.route("/menu/swap/options")
+def swap_meal_options():
+    """
+    List the items that could replace one planned slot for the logged-in user.
+
+    Query args: date (YYYY-MM-DD) and meal (1|2|3). Only items that pass the same
+    availability and allergen checks as POST /menu/swap are returned.
+    """
+    if session.get("Username") is None:
+        return jsonify({"ok": False, "error": "login_required"}), 401
+
+    slot_date = (request.args.get("date") or "").strip()
+    try:
+        meal = int(request.args.get("meal"))
+        slot_weekday_and_time(slot_date, meal)
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "invalid_slot"}), 400
+
+    conn = create_connection(db_file)
+    try:
+        user = fetch_one(
+            conn,
+            'SELECT allergies, generated_menu FROM "User" WHERE email = ?',
+            (session.get("Email"),),
+        )
+        if not user:
+            return jsonify({"ok": False, "error": "login_required"}), 401
+        current_itm_id = find_slot_item(user[1] or "", slot_date, meal)
+        if current_itm_id is None:
+            return jsonify({"ok": False, "error": "slot_not_found"}), 404
+        eligible = list_swap_options(conn, user[0] or "", slot_date, meal, current_itm_id)
+    finally:
+        close_connection(conn)
+
+    details = fetch_menu_items_by_ids([o["itm_id"] for o in eligible])
+    options = [
+        {
+            "itm_id": o["itm_id"],
+            "name": o["name"],
+            "restaurant_name": details.get(o["itm_id"], {}).get("restaurant_name", ""),
+            "price": details.get(o["itm_id"], {}).get("price"),
+            "calories": details.get(o["itm_id"], {}).get("calories"),
+            "allergens": o["allergens"] or "",
+        }
+        for o in eligible
+    ]
+    return jsonify(
+        {
+            "ok": True,
+            "date": slot_date,
+            "meal": meal,
+            "current_itm_id": current_itm_id,
+            "options": options,
+        }
+    )
 
 
 def parse_args() -> argparse.Namespace:
