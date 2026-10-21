@@ -162,19 +162,27 @@ def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The filtered DataFrame with menu items containing the specified allergens removed
     """
-    prohibited = {
-        value.strip().casefold() for value in (allergens or "").split(",") if value.strip()
-    }
+    prohibited = parse_allergens(allergens)
 
     def allowed(value):
-        declared = (
-            set()
-            if pd.isna(value)
-            else {tag.strip().casefold() for tag in str(value).split(",") if tag.strip()}
-        )
-        return not prohibited.intersection(declared)
+        return not prohibited.intersection(parse_allergens(value))
 
     return menu_items.loc[menu_items["allergens"].map(allowed).astype(bool)].copy()
+
+
+def parse_allergens(allergens) -> set:
+    """
+    Normalizes a comma-separated allergen string into a set of casefolded tags
+
+    Args:
+        allergens (str | None): A comma-separated string such as "Gluten, Soy" (None/NaN allowed)
+
+    Returns:
+        set: The allergen tags, stripped and casefolded, with empty entries removed
+    """
+    if allergens is None or (not isinstance(allergens, str) and pd.isna(allergens)):
+        return set()
+    return {tag.strip().casefold() for tag in str(allergens).split(",") if tag.strip()}
 
 
 def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int) -> pd.DataFrame:

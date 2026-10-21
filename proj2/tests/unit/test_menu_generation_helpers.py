@@ -16,6 +16,7 @@ from proj2.menu_generation import (
     limit_scope,
     filter_allergens,
     filter_closed_restaurants,
+    parse_allergens,
     LLM_ATTRIBUTE_ERROR,
     DAYS_OF_WEEK,
 )
@@ -228,6 +229,28 @@ class TestFilterAllergens:
         })
         filtered = filter_allergens(items, "Peanuts")
         assert len(filtered) == 3  # All items pass since Peanuts not found
+
+
+class TestParseAllergens:
+    """Tests for parse_allergens function"""
+
+    def test_parse_strips_and_casefolds(self):
+        assert parse_allergens("Gluten, Soy ,SESAME") == {"gluten", "soy", "sesame"}
+
+    def test_parse_drops_empty_entries(self):
+        assert parse_allergens("Peanuts,, ,") == {"peanuts"}
+
+    @pytest.mark.parametrize("value", [None, "", float("nan")])
+    def test_parse_missing_values(self, value):
+        assert parse_allergens(value) == set()
+
+    def test_filter_ignores_spacing_and_case(self):
+        items = pd.DataFrame({
+            "name": ["Item1", "Item2", "Item3"],
+            "allergens": ["Gluten, Soy", "Dairy, Coconut", "Fish"]
+        })
+        filtered = filter_allergens(items, "soy , COCONUT")
+        assert list(filtered["name"].values) == ["Item3"]
 
 
 class TestFilterClosedRestaurants:
