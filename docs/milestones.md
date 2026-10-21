@@ -63,7 +63,7 @@ Weeklies delivered five major milestones spanning user-facing features, AI optim
   - Distinct status badges for all six statuses. Previously `Accepted` and `Ready` rendered as unstyled text; unknown or missing statuses now show a neutral badge instead of breaking the row.
   - Status mapping helper [`proj2/order_progress.py`](../proj2/order_progress.py) (pure function, no database access), called from the `/profile` route in `proj2/Flask_app.py` and rendered by `proj2/templates/profile.html`.
 * **Engineering Evidence**:
-  - Tested across edge cases (immediate cancellation, non-linear status transitions) in `proj2/tests/unit/test_order_progress.py`.
+  - 48 unit tests in [`proj2/sef26tests/test_uc13_order_progress.py`](../proj2/sef26tests/test_uc13_order_progress.py) and 31 page-rendering tests in [`proj2/sef26tests/test_uc13_track_orders.py`](../proj2/sef26tests/test_uc13_track_orders.py). They cover every status plus failure cases: cancelled, unknown, NULL or blank, numeric, mixed-case, and HTML in the status value (rendered escaped). `order_progress.py` has 100% line and branch coverage.
   - Documented under UC13 in [`use-cases.md`](../use-cases.md).
 
 ---
