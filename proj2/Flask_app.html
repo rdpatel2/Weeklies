@@ -57,9 +57,6 @@
                     <a class="function" href="#build_calendar_cells">build_calendar_cells</a>
             </li>
             <li>
-                    <a class="variable" href="#SWAP_ERROR_MESSAGES">SWAP_ERROR_MESSAGES</a>
-            </li>
-            <li>
                     <a class="function" href="#index">index</a>
             </li>
             <li>
@@ -142,12 +139,6 @@
             </li>
             <li>
                     <a class="function" href="#generate_menu">generate_menu</a>
-            </li>
-            <li>
-                    <a class="function" href="#swap_meal">swap_meal</a>
-            </li>
-            <li>
-                    <a class="function" href="#swap_meal_options">swap_meal_options</a>
             </li>
             <li>
                     <a class="function" href="#parse_args">parse_args</a>
@@ -324,19 +315,6 @@ Returns:
     list: A flat list of calendar cell dicts with day number and a 'meals' list.</p>
 </div>
 
-
-                </section>
-                <section id="SWAP_ERROR_MESSAGES">
-                    <div class="attr variable">
-            <span class="name">SWAP_ERROR_MESSAGES</span>        =
-<input id="SWAP_ERROR_MESSAGES-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="SWAP_ERROR_MESSAGES-view-value"></label><span class="default_value">{&#39;invalid_slot&#39;: &#39;That meal slot is not valid.&#39;, &#39;invalid_item&#39;: &#39;Choose an item to swap in.&#39;, &#39;slot_not_found&#39;: &#39;There is no planned meal in that slot.&#39;, &#39;same_item&#39;: &#39;That item is already planned for this slot.&#39;, &#39;item_not_found&#39;: &#39;That menu item does not exist.&#39;, &#39;out_of_stock&#39;: &#39;That item is out of stock.&#39;, &#39;restaurant_unavailable&#39;: &#39;That restaurant is not currently taking orders.&#39;, &#39;restaurant_closed&#39;: &#39;That restaurant is closed at that meal time.&#39;, &#39;allergen&#39;: &#39;That item contains one of your allergens.&#39;}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#SWAP_ERROR_MESSAGES"></a>
-    
-    
 
                 </section>
                 <section id="index">
@@ -883,45 +861,6 @@ Returns:
             <div class="docstring"><p>Generate or extend the logged-in user's AI menu plan and persist it.</p>
 
 <p>Supports application/json and HTML form submissions.</p>
-</div>
-
-
-                </section>
-                <section id="swap_meal">
-                    <div class="attr function">
-                    <div class="decorator">@app.route(&#39;/menu/swap&#39;, methods=[&#39;POST&#39;])</div>
-
-        <span class="def">def</span>
-        <span class="name">swap_meal</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#swap_meal"></a>
-    
-            <div class="docstring"><p>Replace the item in one date/meal slot of the logged-in user's plan.</p>
-
-<p>Accepts JSON {"date", "meal", "itm_id"} or the same form fields. The replacement must
-be in stock, at an open restaurant that serves that meal time, and free of the
-allergens stored on the user's account. Every other slot is left unchanged.</p>
-</div>
-
-
-                </section>
-                <section id="swap_meal_options">
-                    <div class="attr function">
-                    <div class="decorator">@app.route(&#39;/menu/swap/options&#39;)</div>
-
-        <span class="def">def</span>
-        <span class="name">swap_meal_options</span><span class="signature pdoc-code condensed">(<span class="return-annotation">):</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#swap_meal_options"></a>
-    
-            <div class="docstring"><p>List the items that could replace one planned slot for the logged-in user.</p>
-
-<p>Query args: date (YYYY-MM-DD) and meal (1|2|3). Only items that pass the same
-availability and allergen checks as POST /menu/swap are returned.</p>
 </div>
 
 
