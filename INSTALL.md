@@ -43,6 +43,22 @@ pip install -r proj2/requirements.txt
 
 ## 🚀 Usage
 
+### Configuration
+The app reads its settings from environment variables. `flask run` loads them from a `.env` file in the repo root, which git ignores:
+
+```bash
+cp .env.example .env
+# then set WEEKLIES_SECRET_KEY in .env to the output of:
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+| Variable | Purpose | If unset |
+|---|---|---|
+| `WEEKLIES_SECRET_KEY` | Signs session cookies. Never commit a real value. | A random key is generated at startup, so logins reset whenever the server restarts. |
+| `FLASK_DEBUG` | `1` enables auto-reload and the interactive debugger for local development. | Debug is off. |
+
+When starting the app directly with `python -m proj2.Flask_app`, debug mode is off unless you pass `--debug`. Never enable it on a server others can reach: the debugger lets anyone who sees an error page run code on the machine.
+
 ### Running the Application
 Once dependencies are installed and the virtual environment is activated, you can run the Flask server:
 
