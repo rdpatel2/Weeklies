@@ -8,7 +8,7 @@ Please take a moment to review this document to ensure a smooth and effective co
 
 ## Code of Conduct
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please report any violations or unacceptable behavior to **actanton@ncsu.edu**.
+By participating in this project, you agree to abide by our [Code of Conduct](CODE-OF-CONDUCT.md). Please report any violations or unacceptable behavior to **actanton@ncsu.edu**.
 
 ---
 
