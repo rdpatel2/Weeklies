@@ -1,3 +1,4 @@
+
 # 🍽️ WEEKLIES — Intelligent Meal Planning and Delivery System
 
 [![CI](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rdpatel2/Weeklies/actions/workflows/ci.yml)
@@ -15,7 +16,8 @@
 [![Contributors](https://img.shields.io/github/contributors/rdpatel2/Weeklies.svg)](https://github.com/rdpatel2/Weeklies/graphs/contributors)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Lint: ruff](https://img.shields.io/badge/lint-ruff-46a2f1?logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
-[![DOI](https://img.shields.io/badge/DOI-pending-lightgrey.svg)]()
+[![DOI](https://zenodo.org/badge/1351756287.svg)](https://doi.org/10.5281/zenodo.23535676)
+
 ---
 
 ## 🧠 Project Overview
