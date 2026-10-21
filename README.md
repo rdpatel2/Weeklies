@@ -5,7 +5,7 @@
 [![Docs](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/rdpatel2/Weeklies/actions/workflows/docs.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)]()
 ![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rdpatel2/6d51e7a5086ac9b427e43f47f5d7d29e/raw/tests-badge.json&cacheSeconds=0)
-[![codecov](https://codecov.io/gh/rdpatel2/Weeklies/branch/main/graph/badge.svg)](https://codecov.io/gh/rdpatel2/Weeklies)
+[![Backend coverage](https://codecov.io/gh/rdpatel2/Weeklies/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/rdpatel2/Weeklies)
 [![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Cypress](https://img.shields.io/badge/cypress-tested-brightgreen?logo=cypress&logoColor=white)](https://www.cypress.io/)
 [![License](https://img.shields.io/github/license/rdpatel2/Weeklies.svg)](LICENSE)
@@ -148,6 +148,20 @@ Every push or pull request to the `main` branch triggers:
 4. **Static analysis** via `ruff` and `black` 
 
 You can view live status from the badges above.
+
+Backend coverage is collected by `pytest-cov` using `pytest.ini` and `.coveragerc`.
+The CI workflow runs on every branch push and pull requests targeting `main`,
+uploads `coverage.xml` to Codecov with the `backend` flag, and saves the XML as
+the `backend-coverage` Actions artifact. Test and utility scripts are excluded
+from coverage; LLM tests are skipped by the existing pytest configuration.
+The existing 80% coverage requirement still applies.
+
+To enable uploads, activate `rdpatel2/Weeklies` in Codecov and add its upload
+token as the GitHub repository Actions secret `CODECOV_TOKEN` under
+**Settings → Secrets and variables → Actions**. See the
+[Codecov Action setup guide](https://github.com/codecov/codecov-action#usage).
+The badge displays coverage for `main` after its first successful upload.
+For local coverage, run `python -m pytest` from the repository root.
 
 ---
 
