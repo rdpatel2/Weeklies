@@ -80,3 +80,28 @@ def test_test_mode_keeps_viewer_enabled(monkeypatch):
     monkeypatch.setitem(Flask_app.app.config, "DB_VIEW_ENABLED", False)
     monkeypatch.setitem(Flask_app.app.config, "TESTING", True)
     assert Flask_app.db_view_enabled() is True
+
+
+# ---- nav link follows the flag ----
+
+NAV_PAGES = ["/", "/profile", "/profile/edit", "/orders", "/restaurants"]
+DB_LINK = 'href="/db"'
+
+
+@pytest.mark.parametrize("path", NAV_PAGES)
+def test_nav_hides_db_link_when_disabled(client, seed_minimal_data, login_session, viewer_disabled, path):
+    resp = client.get(path)
+    assert resp.status_code == 200
+    assert DB_LINK not in resp.get_data(as_text=True)
+
+
+@pytest.mark.parametrize("path", NAV_PAGES)
+def test_nav_shows_db_link_when_enabled(client, seed_minimal_data, login_session, viewer_enabled, path):
+    resp = client.get(path)
+    assert resp.status_code == 200
+    assert DB_LINK in resp.get_data(as_text=True)
+
+
+def test_context_processor_reports_flag(viewer_disabled):
+    with Flask_app.app.test_request_context():
+        assert Flask_app.inject_db_view_enabled() == {"db_view_enabled": False}
