@@ -61,6 +61,7 @@ proj2/CSC510_DB.db
 .env.*
 
 # CI outputs / temporary files
+coverage.xml
 report.xml
 *.tmp
 
