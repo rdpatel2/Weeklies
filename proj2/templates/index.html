@@ -51,36 +51,12 @@
   </div>
 </div>
 
-<!-- Swap Meal Modal -->
-<div id="swapModal" class="order-modal" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="order-modal__backdrop"></div>
-  <div class="order-modal__dialog" role="document">
-    <div class="order-modal__head">
-      <h3 class="order-modal__title">Swap <span id="sm-meal"></span> on <span id="sm-date"></span></h3>
-      <button type="button" class="order-modal__close" aria-label="Close">&times;</button>
-    </div>
-    <div class="order-modal__body">
-      <div class="muted" style="margin-bottom:8px;">Currently: <span id="sm-current"></span></div>
-      <div id="sm-status" class="muted" role="status"></div>
-      <ul id="sm-options" class="swap-options"></ul>
-    </div>
-    <div class="order-modal__foot">
-      <span class="muted" style="font-size:.85rem;">Only items that are open at this time and match your allergies are listed.</span>
-      <button type="button" class="btn btn-outline" id="sm-cancel">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <main class="main">
   <div class="container">
     <div class="page-title" style="align-items:center; justify-content:space-between;">
       <h1 class="mb-0">Menu Calendar</h1>
       <div class="greet" style="color: var(--muted); font-weight:600;">Welcome, {{ username }}.</div>
     </div>
-
-    {% if swap_notice %}
-      <div class="flash {{ swap_notice[0] }}" role="status">{{ swap_notice[1] }}</div>
-    {% endif %}
 
     {% set meal_names = {1: 'Breakfast', 2: 'Lunch', 3: 'Dinner'} %}
     {% set meal_short = {1: 'B', 2: 'L', 3: 'D'} %}
@@ -204,16 +180,6 @@
                           data-delivery-type="delivery"
                         >
                           Order {{ meal_names.get(m.meal, 'Meal') }}
-                        </a>
-                        <a
-                          class="swap-btn"
-                          href="#"
-                          aria-label="Swap {{ meal_names.get(m.meal, 'Meal') }}"
-                          data-meal="{{ m.meal }}"
-                          data-date="{{ '%04d-%02d-%02d'|format(year, month, cell.day) }}"
-                          data-item-name="{{ m.item.name }}"
-                        >
-                          Swap
                         </a>
                       </div>
                       </div>
@@ -417,29 +383,6 @@
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(91, 140, 255, 0.25);
   }
-
-  /* Swap button + option list */
-  .swap-btn {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 700;
-    user-select: none;
-  }
-  .swap-btn:hover { filter: brightness(1.15); border-color: rgba(255, 255, 255, 0.45); }
-  .swap-options { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow-y: auto; }
-  .swap-options li { padding: 4px 0; }
-  .swap-option {
-    width: 100%; text-align: left; cursor: pointer; color: inherit;
-    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.15);
-    border-radius: 8px; padding: 8px 10px;
-  }
-  .swap-option:hover:not(:disabled) { border-color: rgba(91, 140, 255, 0.7); }
-  .swap-option .meta { display: block; opacity: .75; font-size: .85rem; }
 
   /* Today's menu card enhancement */
   .card.compact {
@@ -706,83 +649,6 @@
     };
 
     openModal();
-  });
-
-  // ======== Swap Meal Modal ========
-  const swapModal = document.getElementById('swapModal');
-  const smStatus = swapModal.querySelector('#sm-status');
-  const smList = swapModal.querySelector('#sm-options');
-  const mealName = m => (m===1 ? 'Breakfast' : m===2 ? 'Lunch' : 'Dinner');
-  let swapSlot = null;
-
-  function closeSwap(){ swapModal.setAttribute('aria-hidden','true'); swapSlot = null; }
-  swapModal.querySelector('.order-modal__close').addEventListener('click', closeSwap);
-  swapModal.querySelector('#sm-cancel').addEventListener('click', closeSwap);
-  swapModal.querySelector('.order-modal__backdrop').addEventListener('click', closeSwap);
-  window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSwap(); });
-
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.swap-btn');
-    if (!btn) return;
-    e.preventDefault();
-
-    swapSlot = { date: btn.dataset.date, meal: Number(btn.dataset.meal || 3) };
-    swapModal.querySelector('#sm-meal').textContent = mealName(swapSlot.meal);
-    swapModal.querySelector('#sm-date').textContent = swapSlot.date;
-    swapModal.querySelector('#sm-current').textContent = btn.dataset.itemName || '';
-    smList.replaceChildren();
-    smStatus.textContent = 'Loading options…';
-    swapModal.setAttribute('aria-hidden','false');
-
-    try {
-      const qs = new URLSearchParams({ date: swapSlot.date, meal: swapSlot.meal });
-      const res = await fetch('{{ url_for("swap_meal_options") }}?' + qs.toString());
-      const data = await res.json();
-      if (!data.ok) { smStatus.textContent = 'Could not load options for this meal.'; return; }
-      if (!data.options.length) { smStatus.textContent = 'No other items are available for this meal.'; return; }
-      smStatus.textContent = '';
-      data.options.forEach(opt => {
-        const li = document.createElement('li');
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'swap-option';
-        b.dataset.itmId = opt.itm_id;
-        b.textContent = opt.name;
-        const meta = document.createElement('span');
-        meta.className = 'meta';
-        meta.textContent = [opt.restaurant_name, dollars((opt.price||0)/100), (opt.calories||0) + ' cal']
-          .concat(opt.allergens ? ['Allergens: ' + opt.allergens] : []).join(' · ');
-        b.appendChild(meta);
-        li.appendChild(b);
-        smList.appendChild(li);
-      });
-    } catch (err) {
-      smStatus.textContent = 'Network error loading options.';
-    }
-  });
-
-  smList.addEventListener('click', async (e) => {
-    const b = e.target.closest('.swap-option');
-    if (!b || !swapSlot) return;
-    smList.querySelectorAll('.swap-option').forEach(x => x.disabled = true);
-    smStatus.textContent = 'Swapping…';
-    try {
-      const res = await fetch('{{ url_for("swap_meal") }}', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: swapSlot.date, meal: swapSlot.meal, itm_id: Number(b.dataset.itmId) })
-      });
-      const data = await res.json();
-      if (data && data.ok) {
-        const [y, m] = swapSlot.date.split('-');
-        window.location.href = '/' + Number(y) + '/' + Number(m) + '?swapped=1';
-        return;
-      }
-      smStatus.textContent = (data && data.message) || 'Sorry, that swap could not be made.';
-    } catch (err) {
-      smStatus.textContent = 'Network error swapping meal.';
-    }
-    smList.querySelectorAll('.swap-option').forEach(x => x.disabled = false);
   });
 
   omConfirm.addEventListener('click', async () => {

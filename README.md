@@ -70,7 +70,6 @@ In-depth implementation details
 - ⭐ **Restaurant reviews & ratings** with user-generated feedback (New feature)
 - 📊 **Restaurant analytics dashboard** for orders, customer behavior, and performance insights (New feature)
 - 🥗 **Dynamic meal generation** based on user preferences, allergens, and dietary constraints (New feature)
-- 🔁 **Single-meal swaps** — replace one date/meal slot from the calendar; the server checks stock, restaurant hours, and the account's allergies, and leaves the rest of the plan untouched (`POST /menu/swap`, `GET /menu/swap/options`)
 
 ---
 

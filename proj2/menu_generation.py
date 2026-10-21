@@ -144,21 +144,6 @@ def limit_scope(items: pd.DataFrame, num_choices: int) -> List[int]:
     return choices
 
 
-def parse_allergens(allergens) -> set:
-    """
-    Normalizes a comma-separated allergen string into a set of lowercase tokens
-
-    Args:
-        allergens (str | None): A comma-separated string such as "Gluten, Soy" (None/NaN allowed)
-
-    Returns:
-        set: The set of allergen names, stripped and lowercased, with empty entries removed
-    """
-    if not isinstance(allergens, str):
-        return set()
-    return {a.strip().lower() for a in allergens.split(",") if a.strip()}
-
-
 def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     """
     Filters out menu items that contain any of the specified allergens from the provided DataFrame
@@ -170,10 +155,11 @@ def filter_allergens(menu_items: pd.DataFrame, allergens: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The filtered DataFrame with menu items containing the specified allergens removed
     """
-    blocked = parse_allergens(allergens)
     for index, rows in menu_items.iterrows():
-        if parse_allergens(rows["allergens"]) & blocked:
-            menu_items.drop(index, inplace=True)
+        if rows["allergens"] is not None:
+            item_allergens = rows["allergens"].split(",")
+            if any(allergen in item_allergens for allergen in allergens.split(",")):
+                menu_items.drop(index, inplace=True)
     return menu_items
 
 
@@ -191,48 +177,19 @@ def filter_closed_restaurants(restaurant: pd.DataFrame, weekday: str, time: int)
     """
     for index, rows in restaurant.iterrows():
         opening_times = json.loads(rows["hours"])[weekday]
-        if not is_open_at(opening_times, time):
+        if len(opening_times) % 2 == 1:
+            print("Odd opening times - cannot process")
+            restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+        elif len(opening_times) >= 2:
+            open = False
+            for x in range(int(len(opening_times) / 2)):
+                if opening_times[x * 2] <= time and opening_times[x * 2 + 1] >= time:
+                    open = True
+            if not open:
+                restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
+        else:
             restaurant = restaurant[restaurant["rtr_id"] != rows["rtr_id"]]
     return restaurant
-
-
-def is_open_at(opening_times: List[int], time: int) -> bool:
-    """
-    Checks whether a single day's opening times cover the specified time
-
-    Args:
-        opening_times (List[int]): Flat list of [open, close, open, close, ...] times in HHMM format
-        time (int): The time to check in HHMM format (24H time)
-
-    Returns:
-        bool: True if any open/close window contains the time; False if closed or the list is malformed
-    """
-    if len(opening_times) % 2 == 1:
-        print("Odd opening times - cannot process")
-        return False
-    for x in range(len(opening_times) // 2):
-        if opening_times[x * 2] <= time and opening_times[x * 2 + 1] >= time:
-            return True
-    return False
-
-
-def is_restaurant_open(hours: str, weekday: str, time: int) -> bool:
-    """
-    Checks whether a restaurant's stored hours JSON has it open at the specified weekday and time
-
-    Args:
-        hours (str): The restaurant hours JSON, e.g. '{"Mon": [1100, 2200], ...}'
-        weekday (str): The day of the week to check (e.g., "Mon", "Tue", etc.)
-        time (int): The time to check in HHMM format (24H time)
-
-    Returns:
-        bool: True if open; False if closed or the hours cannot be parsed
-    """
-    try:
-        opening_times = json.loads(hours)[weekday]
-        return is_open_at(list(opening_times), time)
-    except (TypeError, ValueError, KeyError):
-        return False
 
 
 class MenuGenerator:
